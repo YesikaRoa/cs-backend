@@ -36,3 +36,12 @@ export const loginUser = async ({ email, password }) => {
 
   return { token }
 }
+
+//recover_passwordUser
+export const recoverPasswordUser = async ({ email }) => {
+  const user = await prisma.user.findUnique({ where: { email } })
+
+  if (!user) throw createError('USER_NOT_FOUND')
+
+  return { message: 'Correo válido. Proceder con recuperación.' }
+}
