@@ -3,13 +3,13 @@ import {
   login,
   register,
   getProfile,
-  recoverPassword,
+  recover_password,
 } from '../controllers/auth.controller.js'
 import { validate } from '../middlewares/validateInput.js'
 import {
   registerSchema,
   loginSchema,
-  recoverPasswordSchema,
+  recover_passwordSchema,
 } from '../schemas/auth.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
 
@@ -19,9 +19,9 @@ router.post('/login', validate(loginSchema), login)
 router.post('/register', validate(registerSchema), register)
 router.get('/profile', verifyToken, getProfile)
 router.post(
-  '/recoverPassword',
-  validate(recoverPasswordSchema),
-  recoverPassword
+  '/recover_password',
+  validate(recover_passwordSchema),
+  recover_password
 )
 
 export default router
