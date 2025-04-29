@@ -27,6 +27,6 @@ export const login = async (req, res, next) => {
 }
 
 export const getProfile = async (req, res) => {
-  const { id, email } = req.user
-  res.json({ id, email })
+  const { id, email, community_id } = req.user
+  res.json({ id, email, community_id })
 }

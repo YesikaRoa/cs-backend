@@ -86,10 +86,151 @@ paths:
                     example: usuario@correo.com
         401:
           description: No autorizado (token faltante o inválido)
+  /posts:
+    post:
+      summary: Crear un nuevo post
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - category_id
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                category_id:
+                  type: integer
+      responses:
+        201:
+          description: Post creado exitosamente
+        400:
+          description: Datos inválidos
+        401:
+          description: No autorizado
 
+    get:
+      summary: Obtener todos los posts
+      tags: [Posts]
+      responses:
+        200:
+          description: Lista de posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/auth.schema'
+        500:
+          description: Error en el servidor
+  /posts/{id}:
+    get:
+      summary: Obtener un post por ID
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Post encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth.schema'
+        404:
+          description: Post no encontrado
+
+    put:
+      summary: Actualizar un post
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                category_id:
+                  type: integer
+      responses:
+        200:
+          description: Post actualizado exitosamente
+        400:
+          description: Datos inválidos
+        401:
+          description: No autorizado
+        404:
+          description: Post no encontrado
+
+    delete:
+      summary: Eliminar un post
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Post eliminado exitosamente
+        401:
+          description: No autorizado
+        404:
+          description: Post no encontrado
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum: [draft, published]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_id:
+          type: integer
+        community_id:
+          type: integer
+        category_id:
+          type: integer
