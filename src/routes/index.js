@@ -1,2 +1,4 @@
 export * from './auth.routes.js'
 export * from './posts.routes.js'
+export * from './testimonies.routes.js'
+export * from './communityInfo.routes.js'

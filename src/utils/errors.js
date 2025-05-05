@@ -24,9 +24,9 @@ const errorList = {
     message: 'Token inválido',
     error: 'Unauthorized',
   },
-  USER_NOT_FOUND: {
+  RECORD_NOT_FOUND: {
     status: 404,
-    message: 'Usuario no encontrado',
+    message: 'Regisro no encontrado',
     error: 'NotFound',
   },
   INTERNAL_SERVER_ERROR: {

@@ -1,4 +1,5 @@
-import prisma from '../config/db.js'
+import { prisma, Prisma } from '../config/db.js'
+import { createError } from '../utils/errors.js'
 
 //Crea un nuevo post
 export const createPost = async (reqBody) => {
@@ -46,12 +47,23 @@ export const getPostById = async (id) => {
 
 //actualizar un post
 export const updatePost = async (id, data) => {
-  const updatedPost = await prisma.post.update({
-    where: { id },
-    data,
-  })
+  try {
+    const updatedPost = await prisma.post.update({
+      where: { id },
+      data,
+    })
 
-  return updatedPost
+    return updatedPost
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+
+    throw createError('INTERNAL_SERVER_ERROR')
+  }
 }
 
 //eliminar un post

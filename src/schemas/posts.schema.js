@@ -5,3 +5,5 @@ export const createPostSchema = z.object({
   content: z.string().min(1, { message: 'El contenido es requerido' }),
   category_id: z.number({ message: 'La categoría es requerida' }),
 })
+
+export const updatePostSchema = createPostSchema.partial()
