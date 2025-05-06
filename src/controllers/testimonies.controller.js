@@ -36,7 +36,7 @@ export const updateTestimony = async (req, res, next) => {
       req.params.id,
       req.body
     )
-    res.json(testimony)
+    res.status(200).json(testimony)
   } catch (error) {
     next(error)
   }
@@ -45,7 +45,7 @@ export const updateTestimony = async (req, res, next) => {
 export const deleteTestimony = async (req, res, next) => {
   try {
     await testimonyService.deleteTestimony(req.params.id)
-    res.json({ message: 'Testimony deleted successfully' })
+    res.json({ status: 200, message: 'Testimony deleted successfully' })
   } catch (error) {
     next(error)
   }

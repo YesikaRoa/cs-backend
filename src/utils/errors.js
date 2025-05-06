@@ -9,6 +9,11 @@ const errorList = {
     message: 'Credenciales inválidas',
     error: 'BadRequest',
   },
+  INVALID_ID: {
+    status: 400,
+    message: 'El ID proporcionado no es válido',
+    error: 'BadRequest',
+  },
   UNAUTHORIZED: {
     status: 401,
     message: 'No autorizado',
@@ -26,7 +31,7 @@ const errorList = {
   },
   RECORD_NOT_FOUND: {
     status: 404,
-    message: 'Regisro no encontrado',
+    message: 'Registro no encontrado',
     error: 'NotFound',
   },
   INTERNAL_SERVER_ERROR: {

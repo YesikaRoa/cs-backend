@@ -17,7 +17,7 @@ app.use(cors())
 app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
 app.use('/api/testimonies', testimoniesRoutes)
-app.use('/api/community_information', communityInfoRoutes)
+app.use('/api/community-information', communityInfoRoutes)
 app.use(errorHandler)
 
 // Swagger docs
