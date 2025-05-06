@@ -1,5 +1,6 @@
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
+import { validateAndConvertId } from '../utils/validate.js'
 
 //Crea un nuevo post
 export const createPost = async (reqBody) => {
@@ -37,10 +38,12 @@ export const getPosts = async () => {
 }
 
 //obtener un post por id
-export const getPostByIdService = async (id) => {
+export const getPostById = async (id) => {
   try {
+    const numericId = validateAndConvertId(id)
+
     const post = await prisma.post.findUnique({
-      where: { id },
+      where: { id: numericId },
       include: { user: true, category: true },
     })
 
@@ -65,8 +68,10 @@ export const getPostByIdService = async (id) => {
 //actualizar un post
 export const updatePost = async (id, data) => {
   try {
+    const numericId = validateAndConvertId(id)
+
     const updatedPost = await prisma.post.update({
-      where: { id },
+      where: { id: numericId },
       data,
     })
 
@@ -79,15 +84,16 @@ export const updatePost = async (id, data) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
 //eliminar un post
 export const deletePost = async (id) => {
   try {
+    const numericId = validateAndConvertId(id)
     const deletedPost = await prisma.post.delete({
-      where: { id },
+      where: { id: numericId },
     })
 
     return deletedPost
@@ -99,6 +105,6 @@ export const deletePost = async (id) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }

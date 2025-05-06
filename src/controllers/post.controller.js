@@ -1,7 +1,7 @@
 import {
   createPost as createPostService,
   getPosts as getPostsService,
-  getPostByIdService,
+  getPostById as getPostByIdService,
   updatePost as updatePostService,
   deletePost as deletePostService,
 } from '../services/post.service.js'
@@ -42,12 +42,7 @@ export const getPosts = async (req, res, next) => {
 
 export const getPostById = async (req, res, next) => {
   try {
-    const id = Number(req.params.id)
-    if (isNaN(id)) {
-      return next(createError('INVALID_ID')) // Lanza un error si el ID no es válido
-    }
-
-    const post = await getPostByIdService(id)
+    const post = await getPostByIdService(req.params.id)
     res.status(200).json({ status: 200, data: post })
   } catch (error) {
     next(error)
@@ -56,7 +51,7 @@ export const getPostById = async (req, res, next) => {
 
 export const updatePost = async (req, res, next) => {
   try {
-    const updated = await updatePostService(Number(req.params.id), req.body)
+    const updated = await updatePostService(req.params.id, req.body)
     res.status(200).json({ status: 200, data: updated })
   } catch (error) {
     next(error)
@@ -65,7 +60,7 @@ export const updatePost = async (req, res, next) => {
 
 export const deletePost = async (req, res, next) => {
   try {
-    const deletedPost = await deletePostService(Number(req.params.id))
+    const deletedPost = await deletePostService(req.params.id)
 
     res.status(200).json({
       message: 'Post eliminado con éxito',
