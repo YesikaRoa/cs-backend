@@ -10,6 +10,12 @@ servers:
 tags:
   - name: Auth
     description: Rutas de autenticación
+  - name: Posts
+    description: Publicaciones realizadas por los usuarios
+  - name: Community
+    description: Información general de la comunidad
+  - name: Testimonies
+    description: Testimonios de los usuarios
 
 paths:
   /auth/register:
@@ -76,16 +82,285 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  email:
-                    type: string
-                    example: usuario@correo.com
+                $ref: '#/components/schemas/User'
         401:
           description: No autorizado (token faltante o inválido)
+
+  /posts:
+    post:
+      summary: Crear un nuevo post
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        201:
+          description: Post creado exitosamente
+        400:
+          description: Datos inválidos
+        401:
+          description: No autorizado
+    get:
+      summary: Obtener todos los posts
+      tags: [Posts]
+      responses:
+        200:
+          description: Lista de posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        500:
+          description: Error en el servidor
+
+  /posts/{id}:
+    get:
+      summary: Obtener un post por ID
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Post encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        404:
+          description: Post no encontrado
+    put:
+      summary: Actualizar un post
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        200:
+          description: Post actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        400:
+          description: Datos inválidos
+        401:
+          description: No autorizado
+        404:
+          description: Post no encontrado
+    delete:
+      summary: Eliminar un post
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Post eliminado exitosamente
+        401:
+          description: No autorizado
+        404:
+          description: Post no encontrado
+
+  /communityInfo:
+    get:
+      summary: Obtener toda la información de la comunidad
+      tags: [Community]
+      responses:
+        200:
+          description: Lista de información de la comunidad
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommunityInfo'
+    post:
+      summary: Crear nueva información de la comunidad
+      tags: [Community]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityInfoInput'
+      responses:
+        201:
+          description: Información creada exitosamente
+
+  /communityInfo/{id}:
+    get:
+      summary: Obtener información por ID
+      tags: [Community]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Información encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityInfo'
+        404:
+          description: No encontrada
+    put:
+      summary: Actualizar información de comunidad
+      tags: [Community]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityInfoInput'
+      responses:
+        200:
+          description: Información actualizada
+    delete:
+      summary: Eliminar información de comunidad
+      tags: [Community]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Eliminado exitosamente
+
+  /testimonies:
+    get:
+      summary: Obtener todos los testimonios
+      tags: [Testimonies]
+      responses:
+        200:
+          description: Lista de testimonios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Testimony'
+    post:
+      summary: Crear un nuevo testimonio
+      tags: [Testimonies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestimonyInput'
+      responses:
+        201:
+          description: Testimonio creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Testimony'
+
+  /testimonies/community/{communityId}:
+    get:
+      summary: Obtener testimonios por ID de comunidad
+      tags: [Testimonies]
+      parameters:
+        - name: communityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Lista de testimonios de la comunidad
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Testimony'
+
+  /testimonies/{id}:
+    put:
+      summary: Actualizar testimonio
+      tags: [Testimonies]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestimonyInput'
+      responses:
+        200:
+          description: Testimonio actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Testimony'
+    delete:
+      summary: Eliminar testimonio
+      tags: [Testimonies]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Testimonio eliminado
 
 components:
   securitySchemes:
@@ -93,3 +368,107 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum: [draft, published]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_id:
+          type: integer
+        community_id:
+          type: integer
+        category_id:
+          type: integer
+
+    PostInput:
+      type: object
+      required:
+        - title
+        - content
+        - category_id
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category_id:
+          type: integer
+
+    CommunityInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        value:
+          type: string
+
+    CommunityInfoInput:
+      type: object
+      required:
+        - title
+        - value
+      properties:
+        title:
+          type: string
+          maxLength: 20
+        value:
+          type: string
+
+    Testimony:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        comment:
+          type: string
+        community_id:
+          type: integer
+
+    TestimonyInput:
+      type: object
+      required:
+        - name
+        - comment
+        - community_id
+      properties:
+        name:
+          type: string
+          maxLength: 20
+        comment:
+          type: string
+          maxLength: 150
+        community_id:
+          type: integer

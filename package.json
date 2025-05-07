@@ -5,12 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "seed": "node prisma/seed.js",
     "postinstall": "node src/scripts/postinstall.js",
     "dev": "cross-env NODE_ENV=local nodemon src/index.js",
     "dev:remote": "cross-env NODE_ENV=development nodemon src/index.js",
     "start": "cross-env NODE_ENV=production node src/index.js",
-    "migrate:dev": "cross-env NODE_ENV=development prisma migrate dev",
-    "migrate:prod": "cross-env NODE_ENV=production prisma migrate deploy",
+    "migrate:dev": "cross-env NODE_ENV=development prisma migrate dev --skip-seed && npm run seed",
+    "migrate:prod": "cross-env NODE_ENV=production prisma migrate deploy && npm run seed",
     "generate": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
