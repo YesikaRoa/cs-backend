@@ -1,6 +1,28 @@
+import dotenv from 'dotenv'
+import path from 'path'
 import { execSync } from 'child_process'
+import { fileURLToPath } from 'url'
 
-const env = process.env.NODE_ENV || 'production' // Asumir producción por defecto
+// Simular __dirname en ES Modules
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Obtener entorno
+const currentEnv = process.env.NODE_ENV || 'local'
+
+// Determinar nombre del archivo .env a cargar
+const envFile = currentEnv === 'local' ? '.env' : `.env.${currentEnv}`
+
+// Ruta absoluta al archivo .env
+const envPath = path.resolve(__dirname, `../../${envFile}`)
+
+// Cargar las variables de entorno
+dotenv.config({ path: envPath })
+
+// Confirmar entorno cargado
+const env = process.env.NODE_ENV || 'production'
+console.log('[postinstall] Environment:', env)
+console.log('[postinstall] Loaded env file:', envPath)
 
 try {
   if (env === 'local') {
