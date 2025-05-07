@@ -40,3 +40,8 @@ export const loginUser = async ({ email, password }) => {
 
   return { token }
 }
+
+export const getCurrentDate = async () => {
+  const currentDate = await prisma.$queryRaw`SELECT NOW() as date;`
+  return currentDate[0].date
+}
