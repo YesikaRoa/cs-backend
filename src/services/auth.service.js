@@ -2,6 +2,16 @@ import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
 import jwt from 'jsonwebtoken'
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
+import { transporter } from './mailer.js'
+
+const generateRandomPassword = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let password = ''
+  for (let i = 0; i < 6; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
+}
 
 export const registerUser = async (reqBody) => {
   const { email, password } = reqBody
@@ -47,10 +57,29 @@ export const getCurrentDate = async () => {
 }
 
 //recover_passwordUser
-export const recover_passwordUser = async ({ email }) => {
+export const recoverPassword = async ({ email }) => {
   const user = await prisma.user.findUnique({ where: { email } })
-
   if (!user) throw createError('USER_NOT_FOUND')
 
-  return { message: 'Correo válido. Proceder con recuperación.' }
+  const newPassword = generateRandomPassword()
+  const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+  await prisma.user.update({
+    where: { email: user.email },
+    data: { password: hashedPassword },
+  })
+
+  await transporter.sendMail({
+    from: '"forgot password" <cimunidad@ethereal.email>',
+    to: user.email,
+    subject: 'Hello ✔',
+    html: `
+            <b>Su contraseña ha sido actualizada.</b>
+            <p>Su nueva contraseña es:</p>
+            <h3>${newPassword}</h3>
+            <p>Le recomendamos por seguridad, que una vez acceda al sistema con esta nueva contraseña la cambie por otra de su conveniencia</p>
+        `,
+  })
+
+  return { message: 'Recuperación de contraseña exitosa' }
 }

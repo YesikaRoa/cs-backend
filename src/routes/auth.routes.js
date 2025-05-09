@@ -4,7 +4,7 @@ import { validate } from '../middlewares/validateInput.js'
 import {
   registerSchema,
   loginSchema,
-  recover_passwordSchema,
+  recoverPasswordSchema,
 } from '../schemas/auth.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
 
@@ -16,7 +16,7 @@ router.post('/register', validate(registerSchema), register)
 router.get('/profile', verifyToken, getProfile)
 router.post(
   '/recover_password',
-  validate(recover_passwordSchema),
+  validate(recoverPasswordSchema),
   recover_password
 )
 

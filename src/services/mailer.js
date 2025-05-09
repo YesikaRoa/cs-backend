@@ -9,6 +9,3 @@ export const transporter = nodemailer.createTransport({
     pass: 'alze uuio fyte mbit',
   },
 })
-transporter.verify(() => {
-  console.log('Ready for send emails')
-})

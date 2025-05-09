@@ -12,6 +12,6 @@ export const loginSchema = z.object({
   password: z.string().min(1, { message: 'La contraseña es requerida' }),
 })
 
-export const recover_passwordSchema = z.object({
+export const recoverPasswordSchema = z.object({
   email: z.string().email({ message: 'Correo inválido' }),
 })
