@@ -14,8 +14,18 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+ id           Int       @id @default(autoincrement())
+  first_name   String    @db.VarChar(50)
+  last_name    String    @db.VarChar(50)
+  email        String    @unique @db.VarChar(50)
+  password     String    @db.VarChar(64)
+  phone        String?   @unique @db.VarChar(20)
+  rol_id       Int
+  community_id Int
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
+
+  
+  role         Role      @relation(fields: [rol_id], references: [id])
+  community    Community @relation(fields: [community_id], references: [id])
 }

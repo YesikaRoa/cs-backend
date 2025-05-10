@@ -14,7 +14,15 @@ const generateRandomPassword = () => {
 }
 
 export const registerUser = async (reqBody) => {
-  const { email, password } = reqBody
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    phone,
+    rol_id,
+    community_id,
+  } = reqBody
 
   const userExists = await prisma.user.findUnique({
     where: { email },
@@ -25,7 +33,15 @@ export const registerUser = async (reqBody) => {
   const hashedPassword = await bcrypt.hash(password, 10)
 
   const user = await prisma.user.create({
-    data: { email, password: hashedPassword },
+    data: {
+      email,
+      password: hashedPassword,
+      first_name,
+      last_name,
+      phone,
+      rol_id,
+      community_id,
+    },
   })
 
   return {
