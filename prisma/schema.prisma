@@ -4,10 +4,10 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -82,13 +82,14 @@ model Post {
   images        ImagePost[]
 }
 model ImagePost {
-  id        Int    @id @default(autoincrement())
-  url       String @unique @db.VarChar(50)
+  id         Int      @id @default(autoincrement())
+  url        String   @unique @db.VarChar(50)
   created_at DateTime @default(now())
-  post_id   Int
+  post_id    Int
 
-  post      Post   @relation(fields: [post_id], references: [id])
+  post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
+
 model Testimony {
   id           Int      @id @default(autoincrement())
   name         String   @db.VarChar(20)
