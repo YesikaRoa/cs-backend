@@ -27,7 +27,7 @@ export const getAllInfo = async () => {
   return info
 }
 
-// Obtener información de comunidad por ID
+// Obtener información  por ID
 export const getInfoById = async (id) => {
   try {
     const numericId = validateAndConvertId(id)

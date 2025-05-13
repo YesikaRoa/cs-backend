@@ -1,11 +1,12 @@
 import {
   createTestimony as createTestimonyService,
-  getAllTestimonies as getTestimoniesService,
-  getTestimoniesByCommunity as getTestimoniesByCommunityService,
+  getTestimonyByIdOrCommunity as getTestimonyByIdOrCommunityService,
   updateTestimony as updateTestimonyService,
   deleteTestimony as deleteTestimonyService,
+  getTestimonies as getTestimoniesService,
 } from '../services/testimonies.service.js'
 
+// Obtener todos los testimonios
 export const getTestimonies = async (req, res, next) => {
   try {
     const testimonies = await getTestimoniesService()
@@ -15,20 +16,27 @@ export const getTestimonies = async (req, res, next) => {
   }
 }
 
-export const getTestimoniesByCommunity = async (req, res, next) => {
+// Obtener todos los testimonios o uno por ID/comunidad
+export const getTestimonyById = async (req, res, next) => {
+  const { searchBy } = req.query
+
   try {
-    const { communityId } = req.params
-    const testimonies = await getTestimoniesByCommunityService(communityId)
+    const testimonies = await getTestimonyByIdOrCommunityService(
+      req.params.id,
+      searchBy
+    )
     res.status(200).json({ status: 200, data: testimonies })
   } catch (error) {
     next(error)
   }
 }
 
+// Crear un nuevo testimonio
 export const createTestimony = async (req, res, next) => {
   try {
-    const { name, comment } = req.body // Asegúrate de que el cuerpo de la solicitud incluya estos campos
+    const { name, comment } = req.body
     const community_id = req.user.community_id || null
+
     const newTestimony = await createTestimonyService({
       name,
       comment,
@@ -45,6 +53,7 @@ export const createTestimony = async (req, res, next) => {
   }
 }
 
+// Actualizar un testimonio
 export const updateTestimony = async (req, res, next) => {
   try {
     const updatedTestimony = await updateTestimonyService(
@@ -57,6 +66,7 @@ export const updateTestimony = async (req, res, next) => {
   }
 }
 
+// Eliminar un testimonio
 export const deleteTestimony = async (req, res, next) => {
   try {
     const deletedTestimony = await deleteTestimonyService(req.params.id)

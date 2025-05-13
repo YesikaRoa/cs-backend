@@ -34,6 +34,11 @@ const errorList = {
     message: 'Registro no encontrado',
     error: 'NotFound',
   },
+  DUPLICATE_RECORD: {
+    status: 409,
+    message: 'El registro ya existe',
+    error: 'Conflict',
+  },
   INTERNAL_SERVER_ERROR: {
     status: 500,
     message: 'Error interno del servidor',

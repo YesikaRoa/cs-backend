@@ -1,49 +1,63 @@
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
+import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
 
-// Crear un nuevo testimonio
-export const createTestimony = async (reqBody) => {
+// Crear un nuevo usuario
+export const createUser = async (reqBody) => {
   try {
-    const { name, comment, community_id } = reqBody
+    const {
+      first_name,
+      last_name,
+      email,
+      password,
+      phone,
+      rol_id,
+      community_id,
+    } = reqBody
+
+    // Encriptar el password
+    const hashedPassword = await BcryptAdapter.hash(password)
 
     const data = {
-      name,
-      comment,
+      first_name,
+      last_name,
+      email,
+      password: hashedPassword, // Usar el password encriptado
+      phone,
+      rol_id,
       community_id,
+      is_active: true,
     }
 
-    const testimony = await prisma.testimony.create({ data })
+    const user = await prisma.user.create({ data })
 
-    return testimony
+    return user
   } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      throw createError('DUPLICATE_RECORD')
+    }
     throw createError('INTERNAL_SERVER_ERROR')
   }
 }
 
-// Obtener todos los testimonios
-export const getTestimonies = async () => {
-  const testimonies = await prisma.testimony.findMany({
+// Obtener todos los usuarios
+export const getAllUsers = async () => {
+  const users = await prisma.user.findMany({
     include: {
+      role: true,
       community: true,
-    },
-    orderBy: {
-      created_at: 'desc',
     },
   })
 
-  if (!testimonies || testimonies.length === 0) {
-    throw createError('RECORD_NOT_FOUND')
-  }
-
-  return testimonies
+  return users
 }
 
-// Obtener testimonio por ID o testimonios por comunidad
-export const getTestimonyByIdOrCommunity = async (
-  id,
-  searchBy = 'testimony'
-) => {
+// Obtener usuario por ID o usuarios por comunidad
+export const getUserById = async (id, searchBy = 'user') => {
   try {
     if (searchBy !== 'true' && searchBy !== 'false') {
       throw createError('INVALID_ID')
@@ -51,21 +65,19 @@ export const getTestimonyByIdOrCommunity = async (
 
     const numericId = validateAndConvertId(id)
 
-    const searchByType = searchBy === 'true' ? 'testimony' : 'community'
+    const searchByType = searchBy === 'true' ? 'user' : 'community'
 
     const whereCondition =
-      searchByType === 'testimony'
-        ? { id: numericId }
-        : { community_id: numericId }
+      searchByType === 'user' ? { id: numericId } : { community_id: numericId }
 
-    const queryMethod = searchByType === 'testimony' ? 'findUnique' : 'findMany'
+    const queryMethod = searchByType === 'user' ? 'findUnique' : 'findMany'
 
-    const result = await prisma.testimony[queryMethod]({
+    const result = await prisma.user[queryMethod]({
       where: whereCondition,
       include: {
+        role: true,
         community: true,
       },
-      orderBy: searchBy === 'community' ? { created_at: 'desc' } : undefined,
     })
 
     if (!result || (Array.isArray(result) && result.length === 0)) {
@@ -85,17 +97,17 @@ export const getTestimonyByIdOrCommunity = async (
   }
 }
 
-// Actualizar un testimonio
-export const updateTestimony = async (id, data) => {
+// Actualizar un usuario
+export const updateUser = async (id, data) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const updatedTestimony = await prisma.testimony.update({
+    const updatedUser = await prisma.user.update({
       where: { id: numericId },
       data,
     })
 
-    return updatedTestimony
+    return updatedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -103,6 +115,7 @@ export const updateTestimony = async (id, data) => {
     ) {
       throw createError('RECORD_NOT_FOUND')
     }
+
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
@@ -114,16 +127,16 @@ export const updateTestimony = async (id, data) => {
   }
 }
 
-// Eliminar un testimonio
-export const deleteTestimony = async (id) => {
+// Eliminar un usuario
+export const deleteUser = async (id) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const deletedTestimony = await prisma.testimony.delete({
+    const deletedUser = await prisma.user.delete({
       where: { id: numericId },
     })
 
-    return deletedTestimony
+    return deletedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
