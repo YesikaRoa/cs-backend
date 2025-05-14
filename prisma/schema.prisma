@@ -14,117 +14,18 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  first_name   String   @db.VarChar(50) @default("Unknown")
-  last_name    String   @db.VarChar(50) @default("Unknown")
-  email     String   @unique
-  password     String   
-  phone        String?  @unique @db.VarChar(20)
-  rol_id       Int @default(1)
-  is_active    Boolean @default(true)
-  community_id Int @default(1)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+ id           Int       @id @default(autoincrement())
+  first_name   String    @db.VarChar(50)
+  last_name    String    @db.VarChar(50)
+  email        String    @unique @db.VarChar(50)
+  password     String    @db.VarChar(64)
+  phone        String?   @unique @db.VarChar(20)
+  rol_id       Int
+  community_id Int
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
 
-  // Relaciones
-  posts        Post[]
+  
   role         Role      @relation(fields: [rol_id], references: [id])
   community    Community @relation(fields: [community_id], references: [id])
-}
-model CommunityInformation {
-  id    Int    @id @default(autoincrement())
-  title String @db.VarChar(20)
-  value String
-}
-model Role {
-  id    Int      @id @default(autoincrement())
-  name  RoleType @unique
-
-  users User[]
-  role_permissions RolePermission[]
-  
-}
-enum RoleType {
-  Admin
-  Community_Leader
-  Street_Leader
-}
-model Community {
-  id          Int     @id @default(autoincrement())
-  name        String  @db.VarChar(50)
-  description String?
-  address     String  @db.VarChar(50)
-
-  posts Post[]
-  users User[]
-  testimonies Testimony[]
-}
-model PostCategory {
-  id    Int         @id @default(autoincrement())
-  name  CategoryType @unique
-
-  posts Post[]
-}
-model Post {
-  id            Int       @id @default(autoincrement())
-  title         String    @db.VarChar(255)
-  content       String    @db.Text
-  status        PostStatus @default(published)
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  user_id       Int
-  community_id  Int
-  category_id   Int
-
-  user          User       @relation(fields: [user_id], references: [id])
-  community     Community  @relation(fields: [community_id], references: [id])
-  category      PostCategory @relation(fields: [category_id], references: [id])
-  images        ImagePost[]
-}
-model ImagePost {
-  id        Int    @id @default(autoincrement())
-  url       String @unique @db.VarChar(50)
-  created_at DateTime @default(now())
-  post_id   Int
-
-  post      Post   @relation(fields: [post_id], references: [id])
-}
-model Testimony {
-  id           Int      @id @default(autoincrement())
-  name         String   @db.VarChar(20)
-  comment      String   @db.VarChar(150)
-  created_at   DateTime @default(now())
-  community_id Int
-
-  community    Community @relation(fields: [community_id], references: [id])
-}
-model Permission {
-  id          Int    @id @default(autoincrement())
-  name        String @unique @db.VarChar(50)
-  description String? @db.Text
-
- role_permissions RolePermission[]
-  
-}
-
-model RolePermission {
-  role_id      Int
-  permission_id Int
-
-  role         Role      @relation(fields: [role_id], references: [id])
-  permission   Permission @relation(fields: [permission_id], references: [id])
-
-  @@unique([role_id, permission_id])
-}
-
-enum PostStatus {
-  draft
-  published
-}
-
-enum CategoryType {
-  Project
-  Event
-  News
-  Announcement
 }
