@@ -1,5 +1,11 @@
 import express from 'express'
-import { login, register, getProfile } from '../controllers/auth.controller.js'
+import {
+  login,
+  register,
+  getProfile,
+  getCurrentDate,
+  recoverPassword,
+} from '../controllers/auth.controller.js'
 import { validate } from '../middlewares/validateInput.js'
 import {
   registerSchema,
@@ -17,7 +23,7 @@ router.get('/profile', verifyToken, getProfile)
 router.post(
   '/recover_password',
   validate(recoverPasswordSchema),
-  recover_password
+  recoverPassword
 )
 
 export default router

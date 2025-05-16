@@ -2,7 +2,7 @@ import {
   registerUser,
   loginUser,
   getCurrentDate as getCurrentDateService,
-  recoverPassword,
+  recoverPassword as recoverPasswordService,
 } from '../services/auth.service.js'
 
 export const register = async (req, res, next) => {
@@ -31,14 +31,15 @@ export const login = async (req, res, next) => {
   }
 }
 
-export const recover_password = async (req, res, next) => {
+export const recoverPassword = async (req, res, next) => {
   try {
-    const result = await recoverPassword({ email: req.body.email })
+    const result = await recoverPasswordService({ email: req.body.email })
     res.status(200).json({
       status: 200,
       message: result.message,
     })
   } catch (error) {
+    console.error('Error en recoverPassword:', error)
     next(error)
   }
 }

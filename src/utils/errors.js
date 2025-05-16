@@ -34,6 +34,11 @@ const errorList = {
     message: 'Registro no encontrado',
     error: 'NotFound',
   },
+  USER_NOT_FOUND: {
+    status: 404,
+    message: 'Usuario no encontrado',
+    error: 'NotFound',
+  },
   INTERNAL_SERVER_ERROR: {
     status: 500,
     message: 'Error interno del servidor',

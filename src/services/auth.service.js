@@ -1,8 +1,9 @@
 import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
 import jwt from 'jsonwebtoken'
-import { prisma, Prisma } from '../config/db.js'
+import { prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { transporter } from './mailer.js'
+import bcrypt from 'bcryptjs'
 
 const generateRandomPassword = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
