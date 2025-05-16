@@ -4,9 +4,14 @@ import {
   register,
   getProfile,
   getCurrentDate,
+  recoverPassword,
 } from '../controllers/auth.controller.js'
 import { validate } from '../middlewares/validateInput.js'
-import { registerSchema, loginSchema } from '../schemas/auth.schema.js'
+import {
+  registerSchema,
+  loginSchema,
+  recoverPasswordSchema,
+} from '../schemas/auth.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
 
 const router = express.Router()
@@ -15,5 +20,10 @@ router.get('/', getCurrentDate)
 router.post('/login', validate(loginSchema), login)
 router.post('/register', validate(registerSchema), register)
 router.get('/profile', verifyToken, getProfile)
+router.post(
+  '/recover_password',
+  validate(recoverPasswordSchema),
+  recoverPassword
+)
 
 export default router
