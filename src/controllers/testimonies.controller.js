@@ -1,6 +1,6 @@
 import {
   createTestimony as createTestimonyService,
-  getTestimonyByIdOrCommunity as getTestimonyByIdOrCommunityService,
+  getTestimoniesByCommunityId as getTestimoniesByCommunityIdService,
   updateTestimony as updateTestimonyService,
   deleteTestimony as deleteTestimonyService,
   getTestimonies as getTestimoniesService,
@@ -16,12 +16,12 @@ export const getTestimonies = async (req, res, next) => {
   }
 }
 
-// Obtener todos los testimonios o uno por ID/comunidad
-export const getTestimonyById = async (req, res, next) => {
+// Obtener todos los testimonios por ID de comunidad
+export const getTestimoniesByCommunityId = async (req, res, next) => {
   const { searchBy } = req.query
 
   try {
-    const testimonies = await getTestimonyByIdOrCommunityService(
+    const testimonies = await getTestimoniesByCommunityIdService(
       req.params.id,
       searchBy
     )

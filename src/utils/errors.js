@@ -34,6 +34,11 @@ const errorList = {
     message: 'Registro no encontrado',
     error: 'NotFound',
   },
+  COMMUNITY_NOT_FOUND: {
+    status: 404,
+    message: 'La comunidad no existe',
+    error: 'NotFound',
+  },
   DUPLICATE_RECORD: {
     status: 409,
     message: 'El registro ya existe',

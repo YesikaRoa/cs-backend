@@ -53,38 +53,27 @@ export const getAllUsers = async () => {
     },
   })
 
-  return users
+  return users.map(sanitizeUser)
 }
 
-// Obtener usuario por ID o usuarios por comunidad
-export const getUserById = async (id, searchBy = 'user') => {
+// Obtener usuario por ID
+export const getUserById = async (id) => {
   try {
-    if (searchBy !== 'true' && searchBy !== 'false') {
-      throw createError('INVALID_ID')
-    }
-
     const numericId = validateAndConvertId(id)
 
-    const searchByType = searchBy === 'true' ? 'user' : 'community'
-
-    const whereCondition =
-      searchByType === 'user' ? { id: numericId } : { community_id: numericId }
-
-    const queryMethod = searchByType === 'user' ? 'findUnique' : 'findMany'
-
-    const result = await prisma.user[queryMethod]({
-      where: whereCondition,
+    const user = await prisma.user.findUnique({
+      where: { id: numericId },
       include: {
         role: true,
         community: true,
       },
     })
 
-    if (!result || (Array.isArray(result) && result.length === 0)) {
+    if (!user) {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    return result
+    return user
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -147,4 +136,9 @@ export const deleteUser = async (id) => {
 
     throw error
   }
+}
+
+const sanitizeUser = (user) => {
+  const { password, createdAt, updatedAt, ...rest } = user
+  return rest
 }

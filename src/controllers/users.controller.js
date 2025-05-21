@@ -48,10 +48,8 @@ export const getAllUsers = async (req, res, next) => {
 }
 
 export const getUserById = async (req, res, next) => {
-  const { searchBy } = req.query
-
   try {
-    const user = await getUserByIdService(req.params.id, searchBy)
+    const user = await getUserByIdService(req.params.id)
     res.status(200).json({ status: 200, data: user })
   } catch (error) {
     next(error)

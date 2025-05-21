@@ -32,47 +32,29 @@ export const getTestimonies = async () => {
     },
   })
 
-  if (!testimonies || testimonies.length === 0) {
-    throw createError('RECORD_NOT_FOUND')
-  }
-
   return testimonies
 }
 
-// Obtener testimonio por ID o testimonios por comunidad
-export const getTestimonyByIdOrCommunity = async (
-  id,
-  searchBy = 'testimony'
-) => {
+// Obtener testimonios por ID de comunidad
+export const getTestimoniesByCommunityId = async (communityId) => {
   try {
-    if (searchBy !== 'true' && searchBy !== 'false') {
-      throw createError('INVALID_ID')
-    }
+    const numericId = validateAndConvertId(communityId)
 
-    const numericId = validateAndConvertId(id)
-
-    const searchByType = searchBy === 'true' ? 'testimony' : 'community'
-
-    const whereCondition =
-      searchByType === 'testimony'
-        ? { id: numericId }
-        : { community_id: numericId }
-
-    const queryMethod = searchByType === 'testimony' ? 'findUnique' : 'findMany'
-
-    const result = await prisma.testimony[queryMethod]({
-      where: whereCondition,
+    const testimonies = await prisma.testimony.findMany({
+      where: { community_id: numericId },
       include: {
         community: true,
       },
-      orderBy: searchBy === 'community' ? { created_at: 'desc' } : undefined,
+      orderBy: {
+        created_at: 'desc',
+      },
     })
 
-    if (!result || (Array.isArray(result) && result.length === 0)) {
+    if (!testimonies || testimonies.length === 0) {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    return result
+    return testimonies
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -88,6 +70,14 @@ export const getTestimonyByIdOrCommunity = async (
 // Actualizar un testimonio
 export const updateTestimony = async (id, data) => {
   try {
+    const community = await prisma.community.findUnique({
+      where: { id: data.community_id },
+    })
+
+    if (!community) {
+      throw createError('COMMUNITY_NOT_FOUND')
+    }
+
     const numericId = validateAndConvertId(id)
 
     const updatedTestimony = await prisma.testimony.update({

@@ -1,7 +1,7 @@
 import express from 'express'
 import {
   getTestimonies,
-  getTestimonyById,
+  getTestimoniesByCommunityId,
   createTestimony,
   updateTestimony,
   deleteTestimony,
@@ -18,8 +18,8 @@ const router = express.Router()
 // Ruta para obtener testimonios
 router.get('/', getTestimonies)
 
-// Obtener testimonio por ID o testimonios por comunidad
-router.get('/:id', getTestimonyById)
+// Obtener testimonio por ID de comunidad
+router.get('/:id', getTestimoniesByCommunityId)
 
 // Crear un nuevo testimonio (requiere token y validación)
 router.post('/', verifyToken, validate(TestimoniesSchema), createTestimony)
