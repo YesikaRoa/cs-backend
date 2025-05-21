@@ -1,14 +1,14 @@
 import {
-  getAllInfo,
-  getInfoById,
-  createInfo,
-  updateInfo,
-  deleteInfo,
+  getAllInfo as getAllCommunityInfoService,
+  getInfoById as getCommunityInfoByIdService,
+  createInfo as createCommunityInfoService,
+  updateInfo as updateCommunityInfoService,
+  deleteInfo as deleteCommunityInfoService,
 } from '../services/communityInfo.service.js'
 
 export const getCommunityInfo = async (req, res, next) => {
   try {
-    const info = await getAllInfo()
+    const info = await getAllCommunityInfoService()
     res.status(200).json({ status: 200, data: info })
   } catch (error) {
     next(error)
@@ -17,7 +17,7 @@ export const getCommunityInfo = async (req, res, next) => {
 
 export const getCommunityInfoById = async (req, res, next) => {
   try {
-    const info = await getInfoById(req.params.id)
+    const info = await getCommunityInfoByIdService(req.params.id)
     if (!info) {
       return res.status(404).json({ status: 404, message: 'Info not found' })
     }
@@ -29,7 +29,7 @@ export const getCommunityInfoById = async (req, res, next) => {
 
 export const createCommunityInfo = async (req, res, next) => {
   try {
-    const info = await createInfo(req.body)
+    const info = await createCommunityInfoService(req.body)
     res.status(201).json({
       status: 201,
       message: 'Información creada con éxito',
@@ -42,7 +42,10 @@ export const createCommunityInfo = async (req, res, next) => {
 
 export const updateCommunityInfo = async (req, res, next) => {
   try {
-    const updatedInfo = await updateInfo(req.params.id, req.body)
+    const updatedInfo = await updateCommunityInfoService(
+      req.params.id,
+      req.body
+    )
     res.status(200).json({
       status: 200,
       message: 'Información actualizada con éxito',
@@ -55,7 +58,7 @@ export const updateCommunityInfo = async (req, res, next) => {
 
 export const deleteCommunityInfo = async (req, res, next) => {
   try {
-    await deleteInfo(req.params.id)
+    await deleteCommunityInfoService(req.params.id)
     res.status(200).json({
       status: 200,
       message: 'Información eliminada con éxito',

@@ -1,51 +1,80 @@
-import * as testimonyService from '../services/testimonies.service.js'
+import {
+  createTestimony as createTestimonyService,
+  getTestimoniesByCommunityId as getTestimoniesByCommunityIdService,
+  updateTestimony as updateTestimonyService,
+  deleteTestimony as deleteTestimonyService,
+  getTestimonies as getTestimoniesService,
+} from '../services/testimonies.service.js'
 
+// Obtener todos los testimonios
 export const getTestimonies = async (req, res, next) => {
   try {
-    const testimonies = await testimonyService.getAllTestimonies()
-    res.json(testimonies)
+    const testimonies = await getTestimoniesService()
+    res.status(200).json({ status: 200, data: testimonies })
   } catch (error) {
     next(error)
   }
 }
 
-export const getTestimoniesByCommunity = async (req, res, next) => {
+// Obtener todos los testimonios por ID de comunidad
+export const getTestimoniesByCommunityId = async (req, res, next) => {
+  const { searchBy } = req.query
+
   try {
-    const { communityId } = req.params
-    const testimonies = await testimonyService.getTestimoniesByCommunity(
-      communityId
+    const testimonies = await getTestimoniesByCommunityIdService(
+      req.params.id,
+      searchBy
     )
-    res.status(200).json(testimonies)
+    res.status(200).json({ status: 200, data: testimonies })
   } catch (error) {
     next(error)
   }
 }
 
+// Crear un nuevo testimonio
 export const createTestimony = async (req, res, next) => {
   try {
-    const testimony = await testimonyService.createTestimony(req.body)
-    res.status(201).json(testimony)
+    const { name, comment } = req.body
+    const community_id = req.user.community_id || null
+
+    const newTestimony = await createTestimonyService({
+      name,
+      comment,
+      community_id,
+    })
+
+    res.status(201).json({
+      status: 201,
+      message: 'Testimonio creado con éxito',
+      data: newTestimony,
+    })
   } catch (error) {
     next(error)
   }
 }
 
+// Actualizar un testimonio
 export const updateTestimony = async (req, res, next) => {
   try {
-    const testimony = await testimonyService.updateTestimony(
+    const updatedTestimony = await updateTestimonyService(
       req.params.id,
       req.body
     )
-    res.status(200).json(testimony)
+    res.status(200).json({ status: 200, data: updatedTestimony })
   } catch (error) {
     next(error)
   }
 }
 
+// Eliminar un testimonio
 export const deleteTestimony = async (req, res, next) => {
   try {
-    await testimonyService.deleteTestimony(req.params.id)
-    res.json({ status: 200, message: 'Testimony deleted successfully' })
+    const deletedTestimony = await deleteTestimonyService(req.params.id)
+
+    res.status(200).json({
+      message: 'Testimonio eliminado con éxito',
+      deletedTestimony,
+    })
   } catch (error) {
     next(error)
   }

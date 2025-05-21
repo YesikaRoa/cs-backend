@@ -1,14 +1,36 @@
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
+import { validateAndConvertId } from '../utils/validate.js'
 
-export const getAllInfo = async () => {
-  return await prisma.communityInformation.findMany()
+// Crear nueva información de comunidad
+export const createInfo = async (reqBody) => {
+  try {
+    const { title, value } = reqBody
+
+    const data = {
+      title,
+      value,
+    }
+
+    const info = await prisma.communityInformation.create({ data })
+
+    return info
+  } catch (error) {
+    throw createError('INTERNAL_SERVER_ERROR')
+  }
 }
 
+// Obtener toda la información de comunidades
+export const getAllInfo = async () => {
+  const info = await prisma.communityInformation.findMany()
+
+  return info
+}
+
+// Obtener información  por ID
 export const getInfoById = async (id) => {
   try {
-    const numericId = Number(id)
-    if (isNaN(numericId)) throw createError('INVALID_ID')
+    const numericId = validateAndConvertId(id)
 
     const info = await prisma.communityInformation.findUnique({
       where: { id: numericId },
@@ -20,7 +42,6 @@ export const getInfoById = async (id) => {
 
     return info
   } catch (error) {
-    // Si el error es de Prisma y tiene el código P2025, lanza RECORD_NOT_FOUND
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2025'
@@ -28,25 +49,21 @@ export const getInfoById = async (id) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    // Propaga otros errores inesperados
     throw error
   }
 }
 
-export const createInfo = async (data) => {
-  const { id, ...safeData } = data // Elimina id si viene en el body
-  return await prisma.communityInformation.create({ data: safeData })
-}
-
+// Actualizar información de comunidad
 export const updateInfo = async (id, data) => {
-  const numericId = Number(id)
-  if (isNaN(numericId)) throw createError('INVALID_ID')
-
   try {
-    return await prisma.communityInformation.update({
+    const numericId = validateAndConvertId(id)
+
+    const updatedInfo = await prisma.communityInformation.update({
       where: { id: numericId },
       data,
     })
+
+    return updatedInfo
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -55,18 +72,20 @@ export const updateInfo = async (id, data) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
+// Eliminar información de comunidad
 export const deleteInfo = async (id) => {
-  const numericId = Number(id)
-  if (isNaN(numericId)) throw createError('INVALID_ID')
-
   try {
-    return await prisma.communityInformation.delete({
+    const numericId = validateAndConvertId(id)
+
+    const deletedInfo = await prisma.communityInformation.delete({
       where: { id: numericId },
     })
+
+    return deletedInfo
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -75,6 +94,6 @@ export const deleteInfo = async (id) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }

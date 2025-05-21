@@ -1,12 +1,11 @@
 import express from 'express'
 import {
   getTestimonies,
-  getTestimoniesByCommunity,
+  getTestimoniesByCommunityId,
   createTestimony,
   updateTestimony,
   deleteTestimony,
 } from '../controllers/testimonies.controller.js'
-
 import { verifyToken } from '../middlewares/auth.js'
 import { validate } from '../middlewares/validateInput.js'
 import {
@@ -16,11 +15,11 @@ import {
 
 const router = express.Router()
 
-// Obtener todos los testimonios
+// Ruta para obtener testimonios
 router.get('/', getTestimonies)
 
-// Obtener testimonios por ID de comunidad
-router.get('/community/:communityId', getTestimoniesByCommunity)
+// Obtener testimonio por ID de comunidad
+router.get('/:id', getTestimoniesByCommunityId)
 
 // Crear un nuevo testimonio (requiere token y validación)
 router.post('/', verifyToken, validate(TestimoniesSchema), createTestimony)
