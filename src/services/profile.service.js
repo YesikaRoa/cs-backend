@@ -24,7 +24,17 @@ export const getProfile = async (userId) => {
     },
   })
   if (!user) throw createError('USER_NOT_FOUND')
-  return user
+
+  // Combinar first_name y last_name en un solo campo
+  const fullName = `${user.first_name} ${user.last_name}`
+
+  return {
+    fullName,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    community: user.community,
+  }
 }
 
 export const updateProfile = async (userId, body) => {
