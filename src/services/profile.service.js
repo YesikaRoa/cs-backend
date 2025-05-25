@@ -2,7 +2,7 @@ import { prisma } from '../config/db.js'
 import bcrypt from 'bcryptjs'
 import { createError } from '../utils/errors.js'
 
-export const getProfileService = async (userId) => {
+export const getProfile = async (userId) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -27,7 +27,7 @@ export const getProfileService = async (userId) => {
   return user
 }
 
-export const updateProfileService = async (userId, body) => {
+export const updateProfile = async (userId, body) => {
   // Construir el objeto de actualización dinámicamente,
   // incluyendo los campos opcionales que se deseen actualizar.
   const updateData = { updatedAt: new Date() }
@@ -72,11 +72,7 @@ export const updateProfileService = async (userId, body) => {
   return updatedUser
 }
 
-export const changePasswordService = async (
-  userId,
-  currentPassword,
-  newPassword
-) => {
+export const changePassword = async (userId, currentPassword, newPassword) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
   })

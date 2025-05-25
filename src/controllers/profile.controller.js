@@ -1,7 +1,7 @@
 import {
-  getProfileService,
-  updateProfileService,
-  changePasswordService,
+  getProfile as getProfileService,
+  updateProfile as updateProfileService,
+  changePassword as changePasswordService,
 } from '../services/profile.service.js'
 
 export const getProfile = async (req, res, next) => {
