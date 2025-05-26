@@ -86,6 +86,53 @@ paths:
         401:
           description: No autorizado (token faltante o inválido)
 
+  /auth/recover_password:
+    post:
+      summary: Recuperar contraseña del usuario
+      tags: [Auth]
+      requestBody:
+        description: Solicitud para recuperar la contraseña, proporcionando el correo del usuario.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Correo del usuario
+              example:
+                email: 'usuario@example.com'
+      responses:
+        '200':
+          description: Recuperación de contraseña exitosa. Se envía un correo con la nueva contraseña.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: 'Recuperación de contraseña exitosa'
+        '404':
+          description: Usuario no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error en el servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /posts:
     post:
       summary: Crear un nuevo post
@@ -472,3 +519,11 @@ components:
           maxLength: 150
         community_id:
           type: integer
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
