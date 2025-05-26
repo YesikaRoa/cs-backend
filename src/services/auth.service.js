@@ -25,13 +25,22 @@ export const registerUser = async (reqBody) => {
 }
 
 export const loginUser = async ({ email, password }) => {
-  const user = await prisma.user.findUnique({ where: { email } })
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { role: true },
+  })
 
   const isValid = user && (await BcryptAdapter.compare(password, user.password))
   if (!isValid) throw createError('INVALID_CREDENTIALS')
 
   const token = jwt.sign(
-    { id: user.id, email, community_id: user.community_id },
+    {
+      id: user.id,
+      email,
+      community_id: user.community_id,
+      rol_id: user.rol_id,
+      rol_name: user.role.name,
+    },
     process.env.JWT_SECRET,
     {
       expiresIn: '1h',
@@ -42,7 +51,9 @@ export const loginUser = async ({ email, password }) => {
     data: { last_login: new Date() },
   })
 
-  return { token }
+  return {
+    token,
+  }
 }
 
 export const getCurrentDate = async () => {

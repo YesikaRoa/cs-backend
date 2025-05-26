@@ -69,7 +69,7 @@ model Post {
   id            Int       @id @default(autoincrement())
   title         String    @db.VarChar(255)
   content       String    @db.Text
-  status        PostStatus @default(published)
+  status        PostStatus @default(pending_approval)
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
   user_id       Int
@@ -121,6 +121,7 @@ model RolePermission {
 enum PostStatus {
   draft
   published
+  pending_approval
 }
 
 enum CategoryType {
