@@ -28,7 +28,7 @@ export const getDashboardDataService = async () => {
     last_name: user.last_name,
     community: user.community.name,
     rol: roleMap[user.role.name] || 'Otro',
-    last_login: user.last_login.toISOString().split('T')[0],
+    last_login: user.last_login ? user.last_login.toISOString() : null,
   }))
 
   // Obtener publicaciones del mes agrupadas por categoría

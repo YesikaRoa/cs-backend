@@ -6,7 +6,7 @@ import postRoutes from './routes/posts.routes.js'
 import testimoniesRoutes from './routes/testimonies.routes.js'
 import communityInfoRoutes from './routes/communityInfo.routes.js'
 import userRoutes from './routes/users.routes.js'
-import postCategoryRoutes from './routes/postsCategories.route.js'
+import postCategoryRoutes from './routes/postsCategories.routes.js'
 
 import dashboardRouter from './routes/dashboard.routes.js'
 import { errorHandler } from './middlewares/errorHandler.js'
