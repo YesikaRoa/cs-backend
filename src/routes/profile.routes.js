@@ -1,14 +1,14 @@
 import express from 'express'
 import {
   getProfile,
-  updateProfile,
   changePassword,
+  updateProfile,
 } from '../controllers/profile.controller.js'
 import { verifyToken } from '../middlewares/auth.js'
 import { validate } from '../middlewares/validateInput.js'
 import {
-  updateProfileSchema,
   changePasswordSchema,
+  updateProfileSchema,
 } from '../schemas/profile.schema.js'
 
 const profileRoutes = express.Router()

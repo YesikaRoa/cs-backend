@@ -3,99 +3,48 @@ import bcrypt from 'bcryptjs'
 import { createError } from '../utils/errors.js'
 
 export const getProfile = async (userId) => {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      first_name: true,
-      last_name: true,
-      email: true,
-      phone: true,
-      role: {
-        select: {
-          name: true,
-        },
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        role: { select: { name: true } },
+        community: { select: { name: true, address: true } },
       },
-      community: {
-        select: {
-          name: true,
-          address: true,
-        },
-      },
-    },
-  })
-  if (!user) throw createError('USER_NOT_FOUND')
+    })
 
-  // Combinar first_name y last_name en un solo campo
-  const fullName = `${user.first_name} ${user.last_name}`
+    if (!user) throw createError('RECORD_NOT_FOUND')
 
-  return {
-    fullName,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    community: user.community,
-  }
-}
-
-export const updateProfile = async (userId, body) => {
-  // Construir el objeto de actualización dinámicamente,
-  // incluyendo los campos opcionales que se deseen actualizar.
-  const updateData = { updatedAt: new Date() }
-
-  if (body.first_name !== undefined) updateData.first_name = body.first_name
-  if (body.last_name !== undefined) updateData.last_name = body.last_name
-  if (body.email !== undefined) updateData.email = body.email
-  if (body.phone !== undefined) updateData.phone = body.phone
-  if (body.rol_id !== undefined) updateData.rol_id = body.rol_id
-  if (body.community_id !== undefined)
-    updateData.community_id = body.community_id
-
-  if (body.community_address !== undefined) {
-    updateData.community = {
-      update: {
-        address: body.community_address,
-      },
+    return {
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      community: user.community,
     }
+  } catch (error) {
+    throw error
   }
-
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: updateData,
-    select: {
-      first_name: true,
-      last_name: true,
-      email: true,
-      phone: true,
-      role: {
-        select: {
-          name: true,
-        },
-      },
-      community: {
-        select: {
-          name: true,
-          address: true,
-        },
-      },
-    },
-  })
-  return updatedUser
 }
 
 export const changePassword = async (userId, currentPassword, newPassword) => {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  })
-  if (!user) throw createError('USER_NOT_FOUND')
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+    if (!user) throw createError('USER_NOT_FOUND')
 
-  const isMatch = await bcrypt.compare(currentPassword, user.password)
-  if (!isMatch) throw createError('INVALID_CREDENTIALS')
+    const isMatch = await bcrypt.compare(currentPassword, user.password)
+    if (!isMatch) throw createError('INVALID_CREDENTIALS')
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10)
-  await prisma.user.update({
-    where: { id: userId },
-    data: { password: hashedPassword, updatedAt: new Date() },
-  })
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword, updatedAt: new Date() },
+    })
 
-  return { message: 'Contraseña actualizada correctamente' }
+    return { message: 'Contraseña actualizada correctamente' }
+  } catch (error) {
+    throw error
+  }
 }

@@ -3,10 +3,8 @@ info:
   title: API de Usuarios
   version: 1.0.0
   description: Documentación de la API REST con Swagger
-
 servers:
   - url: http://localhost:3000/api
-
 tags:
   - name: Auth
     description: Rutas de autenticación
@@ -16,7 +14,8 @@ tags:
     description: Información general de la comunidad
   - name: Testimonies
     description: Testimonios de los usuarios
-
+  - name: Profile
+    description: Gestión del perfil del usuario autenticado
 paths:
   /auth/register:
     post:
@@ -38,13 +37,12 @@ paths:
                 password:
                   type: string
       responses:
-        201:
+        '201':
           description: Usuario registrado correctamente
-        409:
+        '409':
           description: Correo electrónico existente
-        500:
+        '500':
           description: Error en el servidor
-
   /auth/login:
     post:
       summary: Inicia sesión
@@ -65,27 +63,139 @@ paths:
                 password:
                   type: string
       responses:
-        200:
+        '200':
           description: Login exitoso
-        400:
+        '400':
           description: Credenciales inválidas
-
   /auth/profile:
     get:
       summary: Obtener perfil del usuario autenticado
-      tags: [Auth]
+      tags: [Profile]
       security:
         - bearerAuth: []
       responses:
-        200:
+        '200':
           description: Datos del usuario
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        401:
+        '401':
           description: No autorizado (token faltante o inválido)
-
+    put:
+      summary: Actualizar el perfil del usuario autenticado
+      tags: [Profile]
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Datos a actualizar en el perfil. Solo se permiten actualizar first_name, last_name, email y phone.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  description: Nombre del usuario.
+                last_name:
+                  type: string
+                  description: Apellido del usuario.
+                email:
+                  type: string
+                  format: email
+                  description: Correo electrónico.
+                phone:
+                  type: string
+                  description: Número de teléfono.
+              example:
+                first_name: Milton
+                last_name: López
+                email: tobita@gmail.com
+                phone: '04163453433'
+      responses:
+        '200':
+          description: Perfil actualizado correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Perfil actualizado correctamente'
+                  user:
+                    type: object
+                    properties:
+                      first_name:
+                        type: string
+                      last_name:
+                        type: string
+                      email:
+                        type: string
+                      phone:
+                        type: string
+                      role:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                      community:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          address:
+                            type: string
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/profile/change_password:
+    put:
+      summary: Cambiar la contraseña del usuario autenticado
+      tags: [Profile]
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Objeto con la contraseña actual y la nueva contraseña (mínimo 6 caracteres).
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  description: Contraseña actual.
+                newPassword:
+                  type: string
+                  description: Nueva contraseña (mínimo 6 caracteres).
+              example:
+                currentPassword: 'contraseñaActual'
+                newPassword: 'contraseñaNueva'
+      responses:
+        '200':
+          description: Contraseña actualizada correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Contraseña actualizada correctamente'
+        '400':
+          description: Datos inválidos o credenciales incorrectas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /posts:
     post:
       summary: Crear un nuevo post
@@ -99,17 +209,17 @@ paths:
             schema:
               $ref: '#/components/schemas/PostInput'
       responses:
-        201:
+        '201':
           description: Post creado exitosamente
-        400:
+        '400':
           description: Datos inválidos
-        401:
+        '401':
           description: No autorizado
     get:
       summary: Obtener todos los posts
       tags: [Posts]
       responses:
-        200:
+        '200':
           description: Lista de posts
           content:
             application/json:
@@ -117,9 +227,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
-        500:
+        '500':
           description: Error en el servidor
-
   /posts/{id}:
     get:
       summary: Obtener un post por ID
@@ -131,13 +240,13 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        '200':
           description: Post encontrado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Post'
-        404:
+        '404':
           description: Post no encontrado
     put:
       summary: Actualizar un post
@@ -157,17 +266,17 @@ paths:
             schema:
               $ref: '#/components/schemas/PostInput'
       responses:
-        200:
+        '200':
           description: Post actualizado exitosamente
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Post'
-        400:
+        '400':
           description: Datos inválidos
-        401:
+        '401':
           description: No autorizado
-        404:
+        '404':
           description: Post no encontrado
     delete:
       summary: Eliminar un post
@@ -181,19 +290,18 @@ paths:
           schema:
             type: integer
       responses:
-        204:
+        '204':
           description: Post eliminado exitosamente
-        401:
+        '401':
           description: No autorizado
-        404:
+        '404':
           description: Post no encontrado
-
   /communityInfo:
     get:
       summary: Obtener toda la información de la comunidad
       tags: [Community]
       responses:
-        200:
+        '200':
           description: Lista de información de la comunidad
           content:
             application/json:
@@ -213,9 +321,8 @@ paths:
             schema:
               $ref: '#/components/schemas/CommunityInfoInput'
       responses:
-        201:
+        '201':
           description: Información creada exitosamente
-
   /communityInfo/{id}:
     get:
       summary: Obtener información por ID
@@ -227,13 +334,13 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        '200':
           description: Información encontrada
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CommunityInfo'
-        404:
+        '404':
           description: No encontrada
     put:
       summary: Actualizar información de comunidad
@@ -253,7 +360,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CommunityInfoInput'
       responses:
-        200:
+        '200':
           description: Información actualizada
     delete:
       summary: Eliminar información de comunidad
@@ -267,15 +374,14 @@ paths:
           schema:
             type: integer
       responses:
-        204:
+        '204':
           description: Eliminado exitosamente
-
   /testimonies:
     get:
       summary: Obtener todos los testimonios
       tags: [Testimonies]
       responses:
-        200:
+        '200':
           description: Lista de testimonios
           content:
             application/json:
@@ -295,13 +401,12 @@ paths:
             schema:
               $ref: '#/components/schemas/TestimonyInput'
       responses:
-        201:
+        '201':
           description: Testimonio creado
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Testimony'
-
   /testimonies/community/{communityId}:
     get:
       summary: Obtener testimonios por ID de comunidad
@@ -313,7 +418,7 @@ paths:
           schema:
             type: integer
       responses:
-        200:
+        '200':
           description: Lista de testimonios de la comunidad
           content:
             application/json:
@@ -321,7 +426,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Testimony'
-
   /testimonies/{id}:
     put:
       summary: Actualizar testimonio
@@ -341,7 +445,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TestimonyInput'
       responses:
-        200:
+        '200':
           description: Testimonio actualizado
           content:
             application/json:
@@ -359,16 +463,14 @@ paths:
           schema:
             type: integer
       responses:
-        204:
+        '204':
           description: Testimonio eliminado
-
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
   schemas:
     User:
       type: object
@@ -383,92 +485,24 @@ components:
           type: string
         phone:
           type: string
-
-    Post:
+        role:
+          type: object
+          properties:
+            name:
+              type: string
+        community:
+          type: object
+          properties:
+            name:
+              type: string
+            address:
+              type: string
+    Error:
       type: object
       properties:
-        id:
-          type: integer
-        title:
-          type: string
-        content:
-          type: string
         status:
-          type: string
-          enum: [draft, published]
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        user_id:
           type: integer
-        community_id:
-          type: integer
-        category_id:
-          type: integer
-
-    PostInput:
-      type: object
-      required:
-        - title
-        - content
-        - category_id
-      properties:
-        title:
+        message:
           type: string
-        content:
+        error:
           type: string
-        category_id:
-          type: integer
-
-    CommunityInfo:
-      type: object
-      properties:
-        id:
-          type: integer
-        title:
-          type: string
-        value:
-          type: string
-
-    CommunityInfoInput:
-      type: object
-      required:
-        - title
-        - value
-      properties:
-        title:
-          type: string
-          maxLength: 20
-        value:
-          type: string
-
-    Testimony:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        comment:
-          type: string
-        community_id:
-          type: integer
-
-    TestimonyInput:
-      type: object
-      required:
-        - name
-        - comment
-        - community_id
-      properties:
-        name:
-          type: string
-          maxLength: 20
-        comment:
-          type: string
-          maxLength: 150
-        community_id:
-          type: integer
