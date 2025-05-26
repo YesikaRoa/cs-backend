@@ -25,7 +25,7 @@ model User {
   community_id Int @default(1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
-
+  last_login   DateTime?
   // Relaciones
   posts        Post[]
   role         Role      @relation(fields: [rol_id], references: [id])

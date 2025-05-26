@@ -37,6 +37,10 @@ export const loginUser = async ({ email, password }) => {
       expiresIn: '1h',
     }
   )
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { last_login: new Date() },
+  })
 
   return { token }
 }
