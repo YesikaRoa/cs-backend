@@ -22,9 +22,12 @@ export const createInfo = async (reqBody) => {
 
 // Obtener toda la información de comunidades
 export const getAllInfo = async () => {
-  const info = await prisma.communityInformation.findMany()
-
-  return info
+  try {
+    const info = await prisma.communityInformation.findMany()
+    return info
+  } catch (error) {
+    throw createError('INTERNAL_SERVER_ERROR')
+  }
 }
 
 // Obtener información  por ID
