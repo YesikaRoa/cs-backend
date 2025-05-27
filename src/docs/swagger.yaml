@@ -5,7 +5,7 @@ info:
   description: Documentación de la API REST con Swagger
 
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:3002/api
 
 tags:
   - name: Auth
@@ -16,6 +16,12 @@ tags:
     description: Información general de la comunidad
   - name: Testimonies
     description: Testimonios de los usuarios
+  - name: Users
+    description: Gestión de usuarios
+  - name: Dashboard
+    description: Estadísticas y datos generales del sistema
+  - name: PostsCategories
+    description: Categorías de publicaciones
 
 paths:
   /auth/register:
@@ -362,6 +368,215 @@ paths:
         204:
           description: Testimonio eliminado
 
+  /users:
+    get:
+      summary: Obtener todos los usuarios
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        401:
+          description: No autorizado
+    post:
+      summary: Crear un nuevo usuario
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        201:
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Datos inválidos
+        409:
+          description: Correo electrónico existente
+        401:
+          description: No autorizado
+
+  /users/{id}:
+    get:
+      summary: Obtener usuario por ID
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: Usuario no encontrado
+        401:
+          description: No autorizado
+    put:
+      summary: Actualizar usuario
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        200:
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Datos inválidos
+        404:
+          description: Usuario no encontrado
+        409:
+          description: Correo electrónico existente
+        401:
+          description: No autorizado
+    delete:
+      summary: Eliminar usuario
+      tags: [Users]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Usuario eliminado exitosamente
+        404:
+          description: Usuario no encontrado
+        401:
+          description: No autorizado
+
+  /community:
+    get:
+      summary: Obtener nombres de todas las comunidades
+      tags: [Community]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de comunidades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        401:
+          description: No autorizado
+
+  /dashboard:
+    get:
+      summary: Obtener datos del dashboard
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Datos del dashboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_logins:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        first_name:
+                          type: string
+                        last_name:
+                          type: string
+                        community:
+                          type: string
+                        rol:
+                          type: string
+                        last_login:
+                          type: string
+                          format: date-time
+                  posts_month:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  posts_year:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  posts_per_month:
+                    type: array
+                    items:
+                      type: integer
+        401:
+          description: No autorizado
+
+  /posts_categories:
+    get:
+      summary: Obtener todas las categorías de posts
+      tags: [PostsCategories]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Lista de categorías de posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        401:
+          description: No autorizado
+
 components:
   securitySchemes:
     bearerAuth:
@@ -384,6 +599,41 @@ components:
         phone:
           type: string
 
+    UserInput:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+        - password
+        - rol_id
+        - community_id
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        phone:
+          type: string
+          maxLength: 20
+        rol_id:
+          type: integer
+        community_id:
+          type: integer
+        is_active:
+          type: boolean
+          default: true
+
     Post:
       type: object
       properties:
@@ -395,7 +645,7 @@ components:
           type: string
         status:
           type: string
-          enum: [draft, published]
+          enum: [draft, published, pending_approval]
         created_at:
           type: string
           format: date-time
@@ -422,6 +672,12 @@ components:
           type: string
         category_id:
           type: integer
+        community_id:
+          type: integer
+        status:
+          type: string
+          enum: [draft, published, pending_approval]
+          default: pending_approval
 
     CommunityInfo:
       type: object
