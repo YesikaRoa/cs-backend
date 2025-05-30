@@ -6,6 +6,7 @@ import postRoutes from './routes/posts.routes.js'
 import testimoniesRoutes from './routes/testimonies.routes.js'
 import communityInfoRoutes from './routes/communityInfo.routes.js'
 import userRoutes from './routes/users.routes.js'
+import profileRoutes from './routes/profile.routes.js'
 
 import { errorHandler } from './middlewares/errorHandler.js'
 import { setupSwagger } from './docs/swagger.js'
@@ -18,6 +19,7 @@ app.use('/api/posts', postRoutes)
 app.use('/api/testimonies', testimoniesRoutes)
 app.use('/api/community-information', communityInfoRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/profile', profileRoutes)
 app.use(errorHandler)
 
 // Swagger docs
