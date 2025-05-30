@@ -67,7 +67,7 @@ paths:
           description: Login exitoso
         '400':
           description: Credenciales inválidas
-  /auth/profile:
+  /profile:
     get:
       summary: Obtener perfil del usuario autenticado
       tags: [Profile]
@@ -153,7 +153,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /auth/profile/change_password:
+  /profile/change_password:
     put:
       summary: Cambiar la contraseña del usuario autenticado
       tags: [Profile]
@@ -485,24 +485,91 @@ components:
           type: string
         phone:
           type: string
-        role:
-          type: object
-          properties:
-            name:
-              type: string
-        community:
-          type: object
-          properties:
-            name:
-              type: string
-            address:
-              type: string
-    Error:
+    Post:
       type: object
       properties:
-        status:
+        id:
           type: integer
-        message:
+        title:
           type: string
-        error:
+        content:
           type: string
+        status:
+          type: string
+          enum: [draft, published]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_id:
+          type: integer
+        community_id:
+          type: integer
+        category_id:
+          type: integer
+
+    PostInput:
+      type: object
+      required:
+        - title
+        - content
+        - category_id
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category_id:
+          type: integer
+
+    CommunityInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        value:
+          type: string
+
+    CommunityInfoInput:
+      type: object
+      required:
+        - title
+        - value
+      properties:
+        title:
+          type: string
+          maxLength: 20
+        value:
+          type: string
+
+    Testimony:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        comment:
+          type: string
+        community_id:
+          type: integer
+
+    TestimonyInput:
+      type: object
+      required:
+        - name
+        - comment
+        - community_id
+      properties:
+        name:
+          type: string
+          maxLength: 20
+        comment:
+          type: string
+          maxLength: 150
+        community_id:
+          type: integer
