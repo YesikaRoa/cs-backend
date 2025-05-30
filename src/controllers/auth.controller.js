@@ -30,11 +30,6 @@ export const login = async (req, res, next) => {
   }
 }
 
-export const getProfile = async (req, res) => {
-  const { id, email, community_id } = req.user
-  res.json({ id, email, community_id })
-}
-
 export const getCurrentDate = async (req, res, next) => {
   try {
     const data = await getCurrentDateService()
