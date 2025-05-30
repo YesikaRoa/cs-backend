@@ -5,14 +5,34 @@ import { validateAndConvertId } from '../utils/validate.js'
 //Crea un nuevo post
 export const createPost = async (reqBody) => {
   try {
-    const { title, content, category_id, user_id, community_id } = reqBody
+    const { title, content, status, category_id, user_id, community_id } =
+      reqBody
+
+    let resolvedCommunityId
+
+    if (community_id === undefined) {
+      // No vino community_id en la petición, lo buscamos en DB
+      const user = await prisma.user.findUnique({
+        where: { id: user_id },
+        select: { community_id: true },
+      })
+
+      if (!user) {
+        throw createError('RECORD_NOT_FOUND')
+      }
+
+      resolvedCommunityId = user.community_id
+    } else {
+      // Vino community_id explícito (incluso null o 0)
+      resolvedCommunityId = community_id
+    }
 
     const data = {
       title,
       content,
-      status: 'published',
+      status: status || 'pending_approval',
       user_id,
-      community_id,
+      community_id: resolvedCommunityId,
       category_id,
     }
 

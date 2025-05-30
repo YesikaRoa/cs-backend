@@ -8,10 +8,9 @@ import {
 
 export const createPost = async (req, res, next) => {
   try {
-    const { title, content, category_id } = req.body
+    const { title, content, category_id, community_id } = req.body
 
     const user_id = req.user.id
-    const community_id = req.user.community_id || null
 
     const newPost = await createPostService({
       title,

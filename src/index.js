@@ -7,6 +7,8 @@ import testimoniesRoutes from './routes/testimonies.routes.js'
 import communityInfoRoutes from './routes/communityInfo.routes.js'
 import userRoutes from './routes/users.routes.js'
 import postCategoryRoutes from './routes/postsCategories.route.js'
+import profileRoutes from './routes/profile.routes.js'
+
 import { errorHandler } from './middlewares/errorHandler.js'
 import { setupSwagger } from './docs/swagger.js'
 
@@ -19,11 +21,11 @@ app.use('/api/testimonies', testimoniesRoutes)
 app.use('/api/community_information', communityInfoRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/posts_categories', postCategoryRoutes)
-
+app.use('/api/profile', profileRoutes)
 app.use(errorHandler)
 
 // Swagger docs
 setupSwagger(app)
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3002
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
