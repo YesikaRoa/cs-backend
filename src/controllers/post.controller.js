@@ -6,19 +6,26 @@ import {
   deletePost as deletePostService,
 } from '../services/post.service.js'
 
+import { z } from 'zod'
+
 export const createPost = async (req, res, next) => {
   try {
-    const { title, content, category_id, community_id } = req.body
+    const { title, content, status, category_id, community_id } = req.body
 
     const user_id = req.user.id
+    const files = req.files || []
 
-    const newPost = await createPostService({
+    const postDataForService = {
       title,
       content,
+      status,
       category_id,
       user_id,
       community_id,
-    })
+      files,
+    }
+
+    const newPost = await createPostService(postDataForService)
 
     res.status(201).json({
       status: 201,
@@ -26,6 +33,11 @@ export const createPost = async (req, res, next) => {
       data: newPost,
     })
   } catch (error) {
+    console.error('[POST_CREATE_ERROR]', error)
+
+    if (error && error.isCustomError) {
+      return res.status(error.statusCode || 500).json({ error: error.message })
+    }
     next(error)
   }
 }

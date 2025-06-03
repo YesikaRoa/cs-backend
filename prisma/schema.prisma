@@ -83,7 +83,7 @@ model Post {
 }
 model ImagePost {
   id         Int      @id @default(autoincrement())
-  url        String   @unique @db.VarChar(50)
+  url        String   @unique @db.VarChar(255)
   created_at DateTime @default(now())
   post_id    Int
 
