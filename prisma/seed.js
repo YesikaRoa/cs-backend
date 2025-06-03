@@ -1,5 +1,4 @@
-import pkg from '@prisma/client'
-const { PrismaClient, RoleType, CategoryType } = pkg
+import { PrismaClient, RoleType, CategoryType } from '@prisma/client'
 
 import { BcryptAdapter } from '../src/adapters/bcryptAdapter.js'
 

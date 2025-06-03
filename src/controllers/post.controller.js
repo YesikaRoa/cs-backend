@@ -6,8 +6,6 @@ import {
   deletePost as deletePostService,
 } from '../services/post.service.js'
 
-import { z } from 'zod'
-
 export const createPost = async (req, res, next) => {
   try {
     const { title, content, status, category_id, community_id } = req.body
@@ -28,7 +26,6 @@ export const createPost = async (req, res, next) => {
     const newPost = await createPostService(postDataForService)
 
     res.status(201).json({
-      status: 201,
       message: 'Post creado con éxito',
       data: newPost,
     })
@@ -45,7 +42,7 @@ export const createPost = async (req, res, next) => {
 export const getPosts = async (req, res, next) => {
   try {
     const posts = await getPostsService()
-    res.status(200).json({ status: 200, data: posts })
+    res.status(200).json({ data: posts })
   } catch (error) {
     next(error)
   }
@@ -54,7 +51,7 @@ export const getPosts = async (req, res, next) => {
 export const getPostById = async (req, res, next) => {
   try {
     const post = await getPostByIdService(req.params.id)
-    res.status(200).json({ status: 200, data: post })
+    res.status(200).json({ data: post })
   } catch (error) {
     next(error)
   }
@@ -62,9 +59,25 @@ export const getPostById = async (req, res, next) => {
 
 export const updatePost = async (req, res, next) => {
   try {
-    const updated = await updatePostService(req.params.id, req.body)
-    res.status(200).json({ status: 200, data: updated })
+    const { title, content, status, category_id } = req.body
+
+    const files = req.files || []
+
+    const data = {
+      title,
+      content,
+      status,
+      category_id,
+    }
+
+    const updatedPost = await updatePostService(req.params.id, data, files)
+
+    res.status(200).json({
+      message: 'Post actualizado correctamente',
+      data: updatedPost,
+    })
   } catch (error) {
+    console.error('[UPDATE_POST_ERROR]', error)
     next(error)
   }
 }

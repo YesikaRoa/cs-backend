@@ -20,8 +20,19 @@ postRoutes.post(
   validate(createPostSchema),
   createPost
 )
+
 postRoutes.get('/', getPosts)
+
 postRoutes.get('/:id', getPostById)
-postRoutes.put('/:id', verifyToken, validate(updatePostSchema), updatePost)
+
+postRoutes.put(
+  '/:id',
+  verifyToken,
+  upload.array('images', 3),
+  validate(updatePostSchema),
+  updatePost
+)
+
 postRoutes.delete('/:id', verifyToken, deletePost)
+
 export default postRoutes
