@@ -1,7 +1,43 @@
 import { PrismaClient, RoleType, CategoryType } from '@prisma/client'
 import { BcryptAdapter } from '../src/adapters/bcryptAdapter.js'
-
 const prisma = new PrismaClient()
+const communities = [
+  {
+    id: 1,
+    name: 'Lote G Pirineos I',
+    description:
+      'Consejo comunal enfocado en el fortalecimiento de la seguridad y la calidad de vida de sus habitantes',
+    address: 'Desde Lote G, hasta antes de la calle del hambre',
+  },
+  {
+    id: 2,
+    name: 'Lote H Rio Zuñiga',
+    description:
+      'Consejo comunal que trabaja activamente en la conservación ambiental y la mejora de espacios públicos',
+    address: 'Calle del hambre',
+  },
+  {
+    id: 3,
+    name: 'Libertador Cineral',
+    description:
+      'Consejo comunal conocido por su espíritu colaborativo y sus iniciativas en educación y desarrollo social.',
+    address: 'Desde la sede de los Bomberos, hasta la calle 2',
+  },
+  {
+    id: 4,
+    name: 'Rafael Urdaneta',
+    description:
+      'Consejo comunal que fomenta la unión vecinal y proyectos culturales en la parroquia Pedro María Morantes.',
+    address: 'Desde la licorería Isabelita, hasta Lote G',
+  },
+  {
+    id: 5,
+    name: 'Libertador',
+    description:
+      'Consejo comunal comprometidO con el bienestar vecinal, destacada por sus actividades recreativas y programas comunitarios.',
+    address: 'Desde la calle 2, hasta la licorería Isabelita',
+  },
+]
 
 async function main() {
   // 1. Insert Roles
@@ -13,17 +49,16 @@ async function main() {
     })
   }
 
-  // 2. Insert at least one Community
-  await prisma.community.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      name: 'Default Community',
-      description: 'Initial seed community',
-      address: '123 Main Street',
-    },
-  })
+  // 2. Insert Communities
+  // Eliminamos todas las comunidades existentes (la eliminación en cascada se encargará de los registros relacionados)
+  await prisma.community.deleteMany({})
+
+  // Insertamos las nuevas comunidades
+  for (const community of communities) {
+    await prisma.community.create({
+      data: community,
+    })
+  }
 
   // 3. Insert Post Categories
   for (const categoryName of Object.values(CategoryType)) {

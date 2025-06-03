@@ -64,7 +64,20 @@ export const getPostById = async (id) => {
 
     const post = await prisma.post.findUnique({
       where: { id: numericId },
-      include: { user: true, category: true },
+      include: {
+        user: {
+          select: {
+            first_name: true,
+            last_name: true,
+          },
+        },
+        category: true,
+        community: {
+          select: {
+            name: true,
+          },
+        },
+      },
     })
 
     if (!post) {
