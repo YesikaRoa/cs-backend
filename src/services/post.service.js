@@ -3,54 +3,80 @@ import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
 
 //Crea un nuevo post
-export const createPost = async (reqBody) => {
-  try {
-    const { title, content, status, category_id, user_id, community_id } =
-      reqBody
+export const createPost = async (postData) => {
+  // Desestructura directamente del objeto 'postData' que recibes
+  const { title, content, status, category_id, user_id, community_id, files } =
+    postData
 
-    let resolvedCommunityId
+  let resolvedCommunityId
 
-    if (community_id === undefined) {
-      // No vino community_id en la petición, lo buscamos en DB
-      const user = await prisma.user.findUnique({
-        where: { id: user_id },
-        select: { community_id: true },
-      })
+  // Resuelve community_id si no se proporciona
+  if (community_id === undefined) {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(user_id) }, // user_id ya debería ser un número aquí
+      select: { community_id: true },
+    })
 
-      if (!user) {
-        throw createError('RECORD_NOT_FOUND')
-      }
-
-      resolvedCommunityId = user.community_id
-    } else {
-      // Vino community_id explícito (incluso null o 0)
-      resolvedCommunityId = community_id
+    if (!user) {
+      throw createError(
+        'RECORD_NOT_FOUND',
+        'Usuario no encontrado para resolver la comunidad.'
+      )
     }
 
-    const data = {
+    resolvedCommunityId = user.community_id
+  } else {
+    resolvedCommunityId = community_id
+  }
+
+  // Create the post
+  const post = await prisma.post.create({
+    data: {
       title,
       content,
       status: status || 'pending_approval',
-      user_id,
+      user_id: parseInt(user_id),
       community_id: resolvedCommunityId,
-      category_id,
-    }
+      category_id: category_id, // category_id ya es un número por la validación Zod
+    },
+  })
 
-    const post = await prisma.post.create({ data })
-
-    return post
-  } catch (error) {
-    throw createError('INTERNAL_SERVER_ERROR')
+  // Upload image URLs to ImagePost table (max 3)
+  if (files.length > 3) {
+    throw createError('TOO_MANY_IMAGES', 'Demasiadas imágenes. Máximo 3.')
   }
+
+  for (const file of files) {
+    await prisma.imagePost.create({
+      data: {
+        post_id: post.id,
+        url: file.path, // Esto es la URL de Cloudinary
+      },
+    })
+  }
+
+  return post // El servicio devuelve el post creado
 }
 
 //Obtiene todos los posts
 export const getPosts = async () => {
   const posts = await prisma.post.findMany({
     include: {
-      user: true,
+      user: {
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          // otros campos que necesites
+        },
+      },
       category: true,
       community: true,
+      images: true,
+    },
+    orderBy: {
+      created_at: 'desc',
     },
   })
 
@@ -64,7 +90,19 @@ export const getPostById = async (id) => {
 
     const post = await prisma.post.findUnique({
       where: { id: numericId },
-      include: { user: true, category: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+          },
+        },
+        category: true,
+        community: true,
+        images: true,
+      },
     })
 
     if (!post) {
@@ -73,7 +111,6 @@ export const getPostById = async (id) => {
 
     return post
   } catch (error) {
-    // Si el error es de Prisma y tiene el código P2025, lanza RECORD_NOT_FOUND
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2025'
@@ -81,7 +118,6 @@ export const getPostById = async (id) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    // Propaga otros errores inesperados
     throw error
   }
 }

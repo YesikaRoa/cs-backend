@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "ImagePost" ALTER COLUMN "url" SET DATA TYPE VARCHAR(255);
