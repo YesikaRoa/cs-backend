@@ -38,7 +38,16 @@ export const createPost = async (reqBody) => {
 
     const post = await prisma.post.create({ data })
 
-    return post
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      status: post.status,
+      category_id: post.category_id,
+      user_id: post.user_id,
+      community_id: post.community_id,
+      created_at: post.created_at,
+    }
   } catch (error) {
     throw createError('INTERNAL_SERVER_ERROR')
   }
@@ -48,9 +57,18 @@ export const createPost = async (reqBody) => {
 export const getPosts = async () => {
   const posts = await prisma.post.findMany({
     include: {
-      user: true,
-      category: true,
-      community: true,
+      user: {
+        select: {
+          first_name: true,
+          last_name: true,
+        },
+      },
+      category: { select: { name: true } },
+      community: {
+        select: {
+          name: true,
+        },
+      },
     },
   })
 
@@ -71,12 +89,8 @@ export const getPostById = async (id) => {
             last_name: true,
           },
         },
-        category: true,
-        community: {
-          select: {
-            name: true,
-          },
-        },
+        category: { select: { name: true } },
+        community: { select: { name: true } },
       },
     })
 
@@ -108,7 +122,16 @@ export const updatePost = async (id, data) => {
       data,
     })
 
-    return updatedPost
+    return {
+      id: updatedPost.id,
+      title: updatedPost.title,
+      content: updatedPost.content,
+      status: updatedPost.status,
+      category_id: updatedPost.category_id,
+      user_id: updatedPost.user_id,
+      community_id: updatedPost.community_id,
+      updated_at: updatedPost.updated_at,
+    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -129,7 +152,10 @@ export const deletePost = async (id) => {
       where: { id: numericId },
     })
 
-    return deletedPost
+    return {
+      id: deletedPost.id,
+      title: deletedPost.title,
+    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

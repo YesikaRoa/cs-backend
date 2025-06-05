@@ -14,7 +14,11 @@ export const createInfo = async (reqBody) => {
 
     const info = await prisma.communityInformation.create({ data })
 
-    return info
+    return {
+      id: info.id,
+      title: info.title,
+      value: info.value,
+    }
   } catch (error) {
     throw createError('INTERNAL_SERVER_ERROR')
   }
@@ -23,7 +27,13 @@ export const createInfo = async (reqBody) => {
 // Obtener toda la información de comunidades
 export const getAllInfo = async () => {
   try {
-    const info = await prisma.communityInformation.findMany()
+    const info = await prisma.communityInformation.findMany({
+      select: {
+        id: true,
+        title: true,
+        value: true,
+      },
+    })
     return info
   } catch (error) {
     throw createError('INTERNAL_SERVER_ERROR')
@@ -37,6 +47,11 @@ export const getInfoById = async (id) => {
 
     const info = await prisma.communityInformation.findUnique({
       where: { id: numericId },
+      select: {
+        id: true,
+        title: true,
+        value: true,
+      },
     })
 
     if (!info) {
@@ -87,7 +102,6 @@ export const deleteInfo = async (id) => {
     const deletedInfo = await prisma.communityInformation.delete({
       where: { id: numericId },
     })
-
     return deletedInfo
   } catch (error) {
     if (
