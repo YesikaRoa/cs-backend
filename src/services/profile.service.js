@@ -7,8 +7,8 @@ export const getProfile = async (userId) => {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        role: { select: { name: true } },
-        community: { select: { name: true, address: true } },
+        role: { select: { id: true, name: true } },
+        community: { select: { id: true, name: true } },
       },
     })
 

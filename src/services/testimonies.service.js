@@ -7,15 +7,17 @@ export const createTestimony = async (reqBody) => {
   try {
     const { name, comment, community_id } = reqBody
 
-    const data = {
-      name,
-      comment,
-      community_id,
-    }
+    const data = { name, comment, community_id }
 
     const testimony = await prisma.testimony.create({ data })
 
-    return testimony
+    return {
+      id: testimony.id,
+      name: testimony.name,
+      comment: testimony.comment,
+      community_id: testimony.community_id,
+      created_at: testimony.created_at,
+    }
   } catch (error) {
     throw createError('INTERNAL_SERVER_ERROR')
   }
@@ -24,8 +26,17 @@ export const createTestimony = async (reqBody) => {
 // Obtener todos los testimonios
 export const getTestimonies = async () => {
   const testimonies = await prisma.testimony.findMany({
-    include: {
-      community: true,
+    select: {
+      id: true,
+      name: true,
+      comment: true,
+      created_at: true,
+      community: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
     orderBy: {
       created_at: 'desc',
@@ -42,8 +53,17 @@ export const getTestimoniesByCommunityId = async (communityId) => {
 
     const testimonies = await prisma.testimony.findMany({
       where: { community_id: numericId },
-      include: {
-        community: true,
+      select: {
+        id: true,
+        name: true,
+        comment: true,
+        created_at: true,
+        community: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: {
         created_at: 'desc',
@@ -85,7 +105,13 @@ export const updateTestimony = async (id, data) => {
       data,
     })
 
-    return updatedTestimony
+    return {
+      id: updatedTestimony.id,
+      name: updatedTestimony.name,
+      comment: updatedTestimony.comment,
+      community_id: updatedTestimony.community_id,
+      created_at: updatedTestimony.created_at,
+    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -113,7 +139,13 @@ export const deleteTestimony = async (id) => {
       where: { id: numericId },
     })
 
-    return deletedTestimony
+    return {
+      id: deletedTestimony.id,
+      name: deletedTestimony.name,
+      comment: deletedTestimony.comment,
+      community_id: deletedTestimony.community_id,
+      created_at: deletedTestimony.created_at,
+    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
