@@ -8,18 +8,21 @@ import {
 
 export const createPost = async (req, res, next) => {
   try {
-    const { title, content, status, category_id, community_id } = req.body
-
+    const { title, content, category_id } = req.body
+    const community_id = req.user.community_id || null
     const user_id = req.user.id
     const files = req.files || []
+    const user_role = req.user.rol_id
+
+    let status = [1, 2].includes(user_role) ? 'published' : 'pending_approval'
 
     const postDataForService = {
       title,
       content,
-      status,
       category_id,
       user_id,
       community_id,
+      status,
       files,
     }
 
@@ -30,11 +33,6 @@ export const createPost = async (req, res, next) => {
       data: newPost,
     })
   } catch (error) {
-    console.error('[POST_CREATE_ERROR]', error)
-
-    if (error && error.isCustomError) {
-      return res.status(error.statusCode || 500).json({ error: error.message })
-    }
     next(error)
   }
 }
@@ -59,14 +57,13 @@ export const getPostById = async (req, res, next) => {
 
 export const updatePost = async (req, res, next) => {
   try {
-    const { title, content, status, category_id } = req.body
+    const { title, content, category_id } = req.body
 
     const files = req.files || []
 
     const data = {
       title,
       content,
-      status,
       category_id,
     }
 
@@ -77,7 +74,6 @@ export const updatePost = async (req, res, next) => {
       data: updatedPost,
     })
   } catch (error) {
-    console.error('[UPDATE_POST_ERROR]', error)
     next(error)
   }
 }

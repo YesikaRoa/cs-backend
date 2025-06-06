@@ -5,78 +5,72 @@ import { deleteFromCloudinary } from '../../cloudinary.js'
 
 //Crea un nuevo post
 export const createPost = async (postData) => {
-  const { title, content, status, category_id, user_id, community_id, files } =
-    postData
-
-  let resolvedCommunityId
-
-  if (community_id === undefined) {
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(user_id) }, // user_id ya debería ser un número aquí
-      select: { community_id: true },
-    })
-
-    if (!user) {
-      throw createError(
-        'RECORD_NOT_FOUND',
-        'Usuario no encontrado para resolver la comunidad.'
-      )
-    }
-
-    resolvedCommunityId = user.community_id
-  } else {
-    resolvedCommunityId = community_id
-  }
-
-  const post = await prisma.post.create({
-    data: {
+  try {
+    const {
       title,
       content,
-      status: status || 'pending_approval',
-      user_id: parseInt(user_id),
-      community_id: resolvedCommunityId,
-      category_id: category_id,
-    },
-  })
+      status,
+      category_id,
+      user_id,
+      community_id,
+      files,
+    } = postData
 
-  if (files.length > 3) {
-    throw createError('TOO_MANY_IMAGES', 'Demasiadas imágenes. Máximo 3.')
-  }
-
-  for (const file of files) {
-    await prisma.imagePost.create({
+    const post = await prisma.post.create({
       data: {
-        post_id: post.id,
-        url: file.path,
+        title,
+        content,
+        status,
+        user_id: parseInt(user_id),
+        community_id,
+        category_id,
       },
     })
-  }
 
-  return post // El servicio devuelve el post creado
+    if (files.length > 3) {
+      throw createError('TOO_MANY_IMAGES')
+    }
+
+    for (const file of files) {
+      await prisma.imagePost.create({
+        data: {
+          post_id: post.id,
+          url: file.path,
+        },
+      })
+    }
+
+    return post
+  } catch (error) {
+    throw createError('INTERNAL_SERVER_ERROR')
+  }
 }
 
 //Obtiene todos los posts
 export const getPosts = async () => {
-  const posts = await prisma.post.findMany({
-    include: {
-      user: {
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          email: true,
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        user: {
+          select: {
+            first_name: true,
+            last_name: true,
+            email: true,
+          },
         },
+        category: true,
+        community: true,
+        images: true,
       },
-      category: true,
-      community: true,
-      images: true,
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  })
+      orderBy: {
+        created_at: 'desc',
+      },
+    })
 
-  return posts
+    return posts
+  } catch (error) {
+    throw createError('INTERNAL_SERVER_ERROR')
+  }
 }
 
 //obtener un post por id
@@ -89,14 +83,17 @@ export const getPostById = async (id) => {
       include: {
         user: {
           select: {
-            id: true,
             first_name: true,
             last_name: true,
             email: true,
           },
         },
         category: true,
-        community: true,
+        community: {
+          select: {
+            name: true,
+          },
+        },
         images: true,
       },
     })
@@ -118,15 +115,9 @@ export const getPostById = async (id) => {
   }
 }
 
-//actualizar un post
+// actualizar un post
 export const updatePost = async (id, data, files = []) => {
   const numericId = validateAndConvertId(id)
-
-  // Solo permite modificar estos campos
-  const allowedFields = ['title', 'content', 'status', 'category_id']
-  const filteredData = Object.fromEntries(
-    Object.entries(data).filter(([key]) => allowedFields.includes(key))
-  )
 
   try {
     const existingPost = await prisma.post.findUnique({
@@ -135,7 +126,7 @@ export const updatePost = async (id, data, files = []) => {
     })
 
     if (!existingPost) {
-      throw createError('RECORD_NOT_FOUND', 'El post no existe.')
+      throw createError('RECORD_NOT_FOUND')
     }
 
     if (files.length > 0) {
@@ -159,38 +150,7 @@ export const updatePost = async (id, data, files = []) => {
 
     const updatedPost = await prisma.post.update({
       where: { id: numericId },
-      data: filteredData,
-      include: {
-        user: {
-          select: {
-            first_name: true,
-            last_name: true,
-            email: true,
-            phone: true,
-            role: {
-              select: {
-                name: true,
-              },
-            },
-            is_active: true,
-          },
-        },
-        community: {
-          select: {
-            name: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-          },
-        },
-        images: {
-          select: {
-            url: true,
-          },
-        },
-      },
+      data,
     })
 
     return updatedPost
@@ -199,13 +159,14 @@ export const updatePost = async (id, data, files = []) => {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2025'
     ) {
-      throw createError('RECORD_NOT_FOUND', 'Post no encontrado.')
+      throw createError('RECORD_NOT_FOUND')
     }
+
     throw error
   }
 }
 
-//eliminar un post
+// eliminar un post
 export const deletePost = async (id) => {
   const numericId = validateAndConvertId(id)
 
@@ -216,7 +177,7 @@ export const deletePost = async (id) => {
     })
 
     if (!post) {
-      throw createError('RECORD_NOT_FOUND', 'Post no encontrado.')
+      throw createError('RECORD_NOT_FOUND')
     }
 
     for (const image of post.images) {
@@ -237,7 +198,7 @@ export const deletePost = async (id) => {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2025'
     ) {
-      throw createError('RECORD_NOT_FOUND', 'El post no existe.')
+      throw createError('RECORD_NOT_FOUND')
     }
 
     throw error
