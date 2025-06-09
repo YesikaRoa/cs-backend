@@ -34,7 +34,7 @@ const communities = [
     id: 5,
     name: 'Libertador',
     description:
-      'Consejo comunal comprometidO con el bienestar vecinal, destacada por sus actividades recreativas y programas comunitarios.',
+      'Consejo comunal comprometido con el bienestar vecinal, destacada por sus actividades recreativas y programas comunitarios.',
     address: 'Desde la calle 2, hasta la licorería Isabelita',
   },
 ]
@@ -121,6 +121,45 @@ async function main() {
       community_id: 1,
     },
   })
+
+  const infoEntries = [
+    {
+      title: 'LOCATION',
+      value: 'Barrio Libertador, Calle 4',
+    },
+    {
+      title: 'PHONE_NUMBER',
+      value: '02123462092',
+    },
+    {
+      title: 'EMAIL',
+      value: 'email@email.com',
+    },
+    {
+      title: 'MISSION',
+      value:
+        'Promover la participación activa de la comunidad en la gestión y solución de sus necesidades, fomentando el desarrollo social, económico y cultural con base en la organización popular y la corresponsabilidad.',
+    },
+    {
+      title: 'VISION',
+      value:
+        'Ser una comunidad organizada, solidaria y autosustentable, capaz de mejorar continuamente su calidad de vida mediante la unión, la planificación y el compromiso colectivo.',
+    },
+    {
+      title: 'ABOUT',
+      value:
+        'El Consejo Comunal Libertador es un espacio de organización y participación ciudadana que busca mejorar la calidad de vida de sus habitantes a través de la gestión colectiva y la articulación de esfuerzos en pro del bienestar común.',
+    },
+  ]
+
+  for (const info of infoEntries) {
+    await prisma.CommunityInformation.create({
+      data: {
+        title: info.title,
+        value: info.value,
+      },
+    })
+  }
 
   console.log('✅ Seeding complete')
 }
