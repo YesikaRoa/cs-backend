@@ -9,12 +9,10 @@ import {
 export const createPost = async (req, res, next) => {
   try {
     const { title, content, category_id } = req.body
-    const community_id = req.user.community_id || null
-    const user_id = req.user.id
+    const { community_id, id: user_id, rol_id } = req.user
     const files = req.files || []
-    const user_role = req.user.rol_id
 
-    let status = [1, 2].includes(user_role) ? 'published' : 'pending_approval'
+    let status = [1, 2].includes(rol_id) ? 'published' : 'pending_approval'
 
     const postDataForService = {
       title,
@@ -26,11 +24,10 @@ export const createPost = async (req, res, next) => {
       files,
     }
 
-    const newPost = await createPostService(postDataForService)
+    await createPostService(postDataForService)
 
     res.status(201).json({
-      message: 'Post creado con éxito',
-      data: newPost,
+      message: 'Publicación creada con éxito',
     })
   } catch (error) {
     next(error)
@@ -67,11 +64,10 @@ export const updatePost = async (req, res, next) => {
       category_id,
     }
 
-    const updatedPost = await updatePostService(req.params.id, data, files)
+    await updatePostService(req.params.id, data, files)
 
     res.status(200).json({
-      message: 'Post actualizado correctamente',
-      data: updatedPost,
+      message: 'Publicación actualizada con éxito',
     })
   } catch (error) {
     next(error)
@@ -80,11 +76,10 @@ export const updatePost = async (req, res, next) => {
 
 export const deletePost = async (req, res, next) => {
   try {
-    const deletedPost = await deletePostService(req.params.id)
+    await deletePostService(req.params.id)
 
     res.status(200).json({
-      message: 'Post eliminado con éxito',
-      deletedPost,
+      message: 'Publicación eliminada con éxito',
     })
   } catch (error) {
     next(error)

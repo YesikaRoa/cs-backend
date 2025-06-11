@@ -1,7 +1,7 @@
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
-import { deleteFromCloudinary } from '../../cloudinary.js'
+import { deleteFromCloudinary } from '../utils/cloudinary.js'
 
 //Crea un nuevo post
 export const createPost = async (postData) => {
@@ -42,7 +42,7 @@ export const createPost = async (postData) => {
 
     return post
   } catch (error) {
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
@@ -69,7 +69,7 @@ export const getPosts = async () => {
 
     return posts
   } catch (error) {
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
