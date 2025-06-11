@@ -9,7 +9,9 @@ import postRoutes from './routes/posts.routes.js'
 import testimoniesRoutes from './routes/testimonies.routes.js'
 import communityInfoRoutes from './routes/communityInfo.routes.js'
 import userRoutes from './routes/users.routes.js'
-import postCategoryRoutes from './routes/postsCategories.route.js'
+import communityRoute from './routes/community.routes.js'
+import postCategoryRoutes from './routes/postsCategories.routes.js'
+import dashboardRouter from './routes/dashboard.routes.js'
 import profileRoutes from './routes/profile.routes.js'
 
 import { errorHandler } from './middlewares/errorHandler.js'
@@ -25,7 +27,9 @@ app.use('/api/posts', postRoutes)
 app.use('/api/testimonies', testimoniesRoutes)
 app.use('/api/community_information', communityInfoRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/communities', communityRoute)
 app.use('/api/posts_categories', postCategoryRoutes)
+app.use('/api/dashboard', dashboardRouter)
 app.use('/api/profile', profileRoutes)
 app.use(errorHandler)
 

@@ -25,15 +25,15 @@ model User {
   community_id Int @default(1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
-
+  last_login   DateTime?
   // Relaciones
   posts        Post[]
   role         Role      @relation(fields: [rol_id], references: [id])
-  community    Community @relation(fields: [community_id], references: [id])
+  community    Community @relation(fields: [community_id], references: [id], onDelete: Cascade)
 }
 model CommunityInformation {
   id    Int    @id @default(autoincrement())
-  title String @db.VarChar(20)
+  title String @unique @db.VarChar(20)
   value String
 }
 model Role {
@@ -77,7 +77,7 @@ model Post {
   category_id   Int
 
   user          User       @relation(fields: [user_id], references: [id])
-  community     Community  @relation(fields: [community_id], references: [id])
+  community     Community  @relation(fields: [community_id], references: [id], onDelete: Cascade)
   category      PostCategory @relation(fields: [category_id], references: [id])
   images        ImagePost[]
 }
@@ -97,7 +97,7 @@ model Testimony {
   created_at   DateTime @default(now())
   community_id Int
 
-  community    Community @relation(fields: [community_id], references: [id])
+  community    Community @relation(fields: [community_id], references: [id], onDelete: Cascade)
 }
 model Permission {
   id          Int    @id @default(autoincrement())
