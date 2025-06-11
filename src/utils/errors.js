@@ -49,6 +49,11 @@ const errorList = {
     message: 'Error interno del servidor',
     error: 'InternalServerError',
   },
+  TOO_MANY_IMAGES: {
+    status: 400,
+    message: 'Solo se permiten hasta 3 imágenes por post.',
+    error: 'BadRequest',
+  },
 }
 
 export function createError(code) {

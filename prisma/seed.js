@@ -1,4 +1,5 @@
 import { PrismaClient, RoleType, CategoryType } from '@prisma/client'
+
 import { BcryptAdapter } from '../src/adapters/bcryptAdapter.js'
 const prisma = new PrismaClient()
 const communities = [
