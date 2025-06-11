@@ -154,8 +154,10 @@ async function main() {
   ]
 
   for (const info of infoEntries) {
-    await prisma.CommunityInformation.create({
-      data: {
+    await prisma.communityInformation.upsert({
+      where: { title: info.title },
+      update: { value: info.value },
+      create: {
         title: info.title,
         value: info.value,
       },
