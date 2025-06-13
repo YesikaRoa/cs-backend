@@ -5,6 +5,7 @@ import {
   getPostById,
   updatePost,
   deletePost,
+  changePostStatus,
 } from '../controllers/post.controller.js'
 import { validate } from '../middlewares/validateInput.js'
 import { createPostSchema, updatePostSchema } from '../schemas/posts.schema.js'
@@ -34,5 +35,7 @@ postRoutes.put(
 )
 
 postRoutes.delete('/:id', verifyToken, deletePost)
+
+postRoutes.put('/:id/status', verifyToken, changePostStatus)
 
 export default postRoutes

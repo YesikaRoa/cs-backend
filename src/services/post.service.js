@@ -42,7 +42,7 @@ export const createPost = async (postData) => {
 
     return post
   } catch (error) {
-    throw error
+    throw createError('INTERNAL_SERVER_ERROR')
   }
 }
 
@@ -69,7 +69,7 @@ export const getPosts = async () => {
 
     return posts
   } catch (error) {
-    throw error
+    throw createError('INTERNAL_SERVER_ERROR')
   }
 }
 
@@ -201,6 +201,24 @@ export const deletePost = async (id) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
+    throw error
+  }
+}
+
+export const changePostStatus = async (id, newStatus) => {
+  const numericId = validateAndConvertId(id)
+  try {
+    const post = await prisma.post.findUnique({ where: { id: numericId } })
+    if (!post) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+    const updatedPost = await prisma.post.update({
+      where: { id: numericId },
+      data: { status: newStatus },
+    })
+
+    return updatedPost
+  } catch (error) {
     throw error
   }
 }
