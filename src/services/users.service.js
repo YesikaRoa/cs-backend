@@ -30,21 +30,9 @@ export const createUser = async (reqBody) => {
       is_active: true,
     }
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data,
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        email: true,
-        phone: true,
-        rol_id: true,
-        community_id: true,
-        is_active: true,
-      },
     })
-
-    return user
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -139,34 +127,10 @@ export const updateUser = async (id, data) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id: numericId },
       data,
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        email: true,
-        phone: true,
-        rol_id: true,
-        community_id: true,
-        is_active: true,
-        role: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        community: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
     })
-
-    return updatedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -191,21 +155,9 @@ export const deleteUser = async (id) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const deletedUser = await prisma.user.delete({
+    await prisma.user.delete({
       where: { id: numericId },
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        email: true,
-        phone: true,
-        rol_id: true,
-        community_id: true,
-        is_active: true,
-      },
     })
-
-    return deletedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

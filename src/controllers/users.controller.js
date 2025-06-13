@@ -18,7 +18,7 @@ export const createUser = async (req, res, next) => {
       community_id,
     } = req.body
 
-    const newUser = await createUserService({
+    await createUserService({
       first_name,
       last_name,
       email,
@@ -29,9 +29,7 @@ export const createUser = async (req, res, next) => {
     })
 
     res.status(201).json({
-      status: 201,
       message: 'Usuario creado con éxito',
-      data: newUser,
     })
   } catch (error) {
     next(error)
@@ -41,7 +39,7 @@ export const createUser = async (req, res, next) => {
 export const getAllUsers = async (req, res, next) => {
   try {
     const users = await getUsersService()
-    res.status(200).json({ status: 200, data: users })
+    res.status(200).json({ data: users })
   } catch (error) {
     next(error)
   }
@@ -50,7 +48,7 @@ export const getAllUsers = async (req, res, next) => {
 export const getUserById = async (req, res, next) => {
   try {
     const user = await getUserByIdService(req.params.id)
-    res.status(200).json({ status: 200, data: user })
+    res.status(200).json({ data: user })
   } catch (error) {
     next(error)
   }
@@ -58,8 +56,8 @@ export const getUserById = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const updatedUser = await updateUserService(req.params.id, req.body)
-    res.status(200).json({ status: 200, data: updatedUser })
+    await updateUserService(req.params.id, req.body)
+    res.status(200).json({ message: 'Usuario actualizado con éxito' })
   } catch (error) {
     next(error)
   }
@@ -67,11 +65,9 @@ export const updateUser = async (req, res, next) => {
 
 export const deleteUser = async (req, res, next) => {
   try {
-    const deletedUser = await deleteUserService(req.params.id)
-
+    await deleteUserService(req.params.id)
     res.status(200).json({
       message: 'Usuario eliminado con éxito',
-      deletedUser,
     })
   } catch (error) {
     next(error)

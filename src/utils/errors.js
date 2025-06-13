@@ -42,7 +42,7 @@ const errorList = {
   DUPLICATE_RECORD: {
     status: 409,
     message: 'El registro ya existe',
-    error: 'Conflict',
+    error: 'DuplicateRecord',
   },
   INTERNAL_SERVER_ERROR: {
     status: 500,

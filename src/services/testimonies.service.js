@@ -5,21 +5,9 @@ import { validateAndConvertId } from '../utils/validate.js'
 // Crear un nuevo testimonio
 export const createTestimony = async (reqBody) => {
   try {
-    const { name, comment, community_id } = reqBody
-
-    const data = { name, comment, community_id }
-
-    const testimony = await prisma.testimony.create({ data })
-
-    return {
-      id: testimony.id,
-      name: testimony.name,
-      comment: testimony.comment,
-      community_id: testimony.community_id,
-      created_at: testimony.created_at,
-    }
+    await prisma.testimony.create({ data: reqBody })
   } catch (error) {
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
@@ -90,28 +78,12 @@ export const getTestimoniesByCommunityId = async (communityId) => {
 // Actualizar un testimonio
 export const updateTestimony = async (id, data) => {
   try {
-    const community = await prisma.community.findUnique({
-      where: { id: data.community_id },
-    })
-
-    if (!community) {
-      throw createError('COMMUNITY_NOT_FOUND')
-    }
-
     const numericId = validateAndConvertId(id)
 
-    const updatedTestimony = await prisma.testimony.update({
+    await prisma.testimony.update({
       where: { id: numericId },
       data,
     })
-
-    return {
-      id: updatedTestimony.id,
-      name: updatedTestimony.name,
-      comment: updatedTestimony.comment,
-      community_id: updatedTestimony.community_id,
-      created_at: updatedTestimony.created_at,
-    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -135,17 +107,9 @@ export const deleteTestimony = async (id) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const deletedTestimony = await prisma.testimony.delete({
+    await prisma.testimony.delete({
       where: { id: numericId },
     })
-
-    return {
-      id: deletedTestimony.id,
-      name: deletedTestimony.name,
-      comment: deletedTestimony.comment,
-      community_id: deletedTestimony.community_id,
-      created_at: deletedTestimony.created_at,
-    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

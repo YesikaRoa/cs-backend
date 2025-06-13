@@ -39,17 +39,6 @@ export const createPost = async (postData) => {
         },
       })
     }
-
-    return {
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      status: post.status,
-      category_id: post.category_id,
-      user_id: post.user_id,
-      community_id: post.community_id,
-      created_at: post.created_at,
-    }
   } catch (error) {
     throw error
   }
@@ -160,21 +149,10 @@ export const updatePost = async (id, data, files = []) => {
       }
     }
 
-    const updatedPost = await prisma.post.update({
+    await prisma.post.update({
       where: { id: numericId },
       data,
     })
-
-    return {
-      id: updatedPost.id,
-      title: updatedPost.title,
-      content: updatedPost.content,
-      status: updatedPost.status,
-      category_id: updatedPost.category_id,
-      user_id: updatedPost.user_id,
-      community_id: updatedPost.community_id,
-      updated_at: updatedPost.updated_at,
-    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -209,14 +187,9 @@ export const deletePost = async (id) => {
       where: { post_id: numericId },
     })
 
-    const deletedPost = await prisma.post.delete({
+    await prisma.post.delete({
       where: { id: numericId },
     })
-
-    return {
-      id: deletedPost.id,
-      title: deletedPost.title,
-    }
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
