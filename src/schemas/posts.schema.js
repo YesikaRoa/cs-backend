@@ -7,3 +7,9 @@ export const createPostSchema = z.object({
 })
 
 export const updatePostSchema = createPostSchema.partial()
+
+export const changePostStatusSchema = z.object({
+  status: z.enum(['published', 'draft'], {
+    errorMap: () => ({ message: "El status debe ser 'published' o 'draft'" }),
+  }),
+})

@@ -4,7 +4,9 @@ import {
   getPostById as getPostByIdService,
   updatePost as updatePostService,
   deletePost as deletePostService,
+  changePostStatus as changePostStatusService,
 } from '../services/post.service.js'
+import { changePostStatusSchema } from '../schemas/posts.schema.js'
 
 export const createPost = async (req, res, next) => {
   try {
@@ -80,6 +82,25 @@ export const deletePost = async (req, res, next) => {
 
     res.status(200).json({
       message: 'Publicación eliminada con éxito',
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const changePostStatus = async (req, res, next) => {
+  try {
+    // Solo los usuarios con rol 1 o 2 pueden cambiar el status
+    if (!(req.user.rol_id === 1 || req.user.rol_id === 2)) {
+      return next(new Error('No tienes permiso para cambiar el status'))
+    }
+    // Valida que el body contenga un status válido ("published" o "draft")
+    const { status: newStatus } = changePostStatusSchema.parse(req.body)
+
+    const updatedPost = await changePostStatusService(req.params.id, newStatus)
+    res.status(200).json({
+      message: 'Estado de la publicación actualizado correctamente',
+      data: updatedPost,
     })
   } catch (error) {
     next(error)
