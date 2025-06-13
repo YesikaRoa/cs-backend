@@ -23,16 +23,16 @@ export const createUser = async (reqBody) => {
       first_name,
       last_name,
       email,
-      password: hashedPassword, // Usar el password encriptado
+      password: hashedPassword,
       phone,
       rol_id,
       community_id,
       is_active: true,
     }
 
-    const user = await prisma.user.create({ data })
-
-    return user
+    await prisma.user.create({
+      data,
+    })
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -47,13 +47,31 @@ export const createUser = async (reqBody) => {
 // Obtener todos los usuarios
 export const getAllUsers = async () => {
   const users = await prisma.user.findMany({
-    include: {
-      role: true,
-      community: true,
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      email: true,
+      phone: true,
+      rol_id: true,
+      community_id: true,
+      is_active: true,
+      role: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      community: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   })
 
-  return users.map(sanitizeUser)
+  return users
 }
 
 // Obtener usuario por ID
@@ -63,9 +81,27 @@ export const getUserById = async (id) => {
 
     const user = await prisma.user.findUnique({
       where: { id: numericId },
-      include: {
-        role: true,
-        community: true,
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        phone: true,
+        rol_id: true,
+        community_id: true,
+        is_active: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        community: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     })
 
@@ -91,12 +127,10 @@ export const updateUser = async (id, data) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const updatedUser = await prisma.user.update({
+    await prisma.user.update({
       where: { id: numericId },
       data,
     })
-
-    return updatedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -121,11 +155,9 @@ export const deleteUser = async (id) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const deletedUser = await prisma.user.delete({
+    await prisma.user.delete({
       where: { id: numericId },
     })
-
-    return deletedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -136,9 +168,4 @@ export const deleteUser = async (id) => {
 
     throw error
   }
-}
-
-const sanitizeUser = (user) => {
-  const { password, createdAt, updatedAt, ...rest } = user
-  return rest
 }

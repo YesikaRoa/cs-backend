@@ -4,7 +4,13 @@ import { createError } from '../utils/errors.js'
 // Obtener toda la información de comunidades
 export const getAllInfo = async () => {
   try {
-    const info = await prisma.communityInformation.findMany()
+    const info = await prisma.communityInformation.findMany({
+      select: {
+        id: true,
+        title: true,
+        value: true,
+      },
+    })
     return info
   } catch (error) {
     throw createError('INTERNAL_SERVER_ERROR')
@@ -16,6 +22,11 @@ export const getInfoByKey = async (key) => {
   try {
     const info = await prisma.communityInformation.findUnique({
       where: { title: key },
+      select: {
+        id: true,
+        title: true,
+        value: true,
+      },
     })
 
     if (!info) {

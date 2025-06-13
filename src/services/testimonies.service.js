@@ -5,27 +5,26 @@ import { validateAndConvertId } from '../utils/validate.js'
 // Crear un nuevo testimonio
 export const createTestimony = async (reqBody) => {
   try {
-    const { name, comment, community_id } = reqBody
-
-    const data = {
-      name,
-      comment,
-      community_id,
-    }
-
-    const testimony = await prisma.testimony.create({ data })
-
-    return testimony
+    await prisma.testimony.create({ data: reqBody })
   } catch (error) {
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
 // Obtener todos los testimonios
 export const getTestimonies = async () => {
   const testimonies = await prisma.testimony.findMany({
-    include: {
-      community: true,
+    select: {
+      id: true,
+      name: true,
+      comment: true,
+      created_at: true,
+      community: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
     orderBy: {
       created_at: 'desc',
@@ -42,8 +41,17 @@ export const getTestimoniesByCommunityId = async (communityId) => {
 
     const testimonies = await prisma.testimony.findMany({
       where: { community_id: numericId },
-      include: {
-        community: true,
+      select: {
+        id: true,
+        name: true,
+        comment: true,
+        created_at: true,
+        community: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
       orderBy: {
         created_at: 'desc',
@@ -70,22 +78,12 @@ export const getTestimoniesByCommunityId = async (communityId) => {
 // Actualizar un testimonio
 export const updateTestimony = async (id, data) => {
   try {
-    const community = await prisma.community.findUnique({
-      where: { id: data.community_id },
-    })
-
-    if (!community) {
-      throw createError('COMMUNITY_NOT_FOUND')
-    }
-
     const numericId = validateAndConvertId(id)
 
-    const updatedTestimony = await prisma.testimony.update({
+    await prisma.testimony.update({
       where: { id: numericId },
       data,
     })
-
-    return updatedTestimony
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -109,11 +107,9 @@ export const deleteTestimony = async (id) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    const deletedTestimony = await prisma.testimony.delete({
+    await prisma.testimony.delete({
       where: { id: numericId },
     })
-
-    return deletedTestimony
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

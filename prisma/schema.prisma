@@ -76,7 +76,7 @@ model Post {
   community_id  Int
   category_id   Int
 
-  user          User       @relation(fields: [user_id], references: [id])
+  user      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
   community     Community  @relation(fields: [community_id], references: [id], onDelete: Cascade)
   category      PostCategory @relation(fields: [category_id], references: [id])
   images        ImagePost[]

@@ -6,7 +6,7 @@ export function validate(schema) {
     } catch (error) {
       return res.status(400).json({
         error: 'Datos inválidos',
-        issues: error.errors.map((e) => e.message),
+        issues: error.errors.map((e) => `${e.message} [${e.path[0]}]`),
       })
     }
   }

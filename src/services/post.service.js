@@ -39,8 +39,6 @@ export const createPost = async (postData) => {
         },
       })
     }
-
-    return post
   } catch (error) {
     throw error
   }
@@ -55,11 +53,14 @@ export const getPosts = async () => {
           select: {
             first_name: true,
             last_name: true,
-            email: true,
           },
         },
-        category: true,
-        community: true,
+        category: { select: { name: true } },
+        community: {
+          select: {
+            name: true,
+          },
+        },
         images: true,
       },
       orderBy: {
@@ -88,7 +89,7 @@ export const getPostById = async (id) => {
             email: true,
           },
         },
-        category: true,
+        category: { select: { name: true } },
         community: {
           select: {
             name: true,
@@ -148,12 +149,10 @@ export const updatePost = async (id, data, files = []) => {
       }
     }
 
-    const updatedPost = await prisma.post.update({
+    await prisma.post.update({
       where: { id: numericId },
       data,
     })
-
-    return updatedPost
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -188,11 +187,9 @@ export const deletePost = async (id) => {
       where: { post_id: numericId },
     })
 
-    const deletedPost = await prisma.post.delete({
+    await prisma.post.delete({
       where: { id: numericId },
     })
-
-    return deletedPost
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
