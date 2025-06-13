@@ -33,7 +33,7 @@ model User {
 }
 model CommunityInformation {
   id    Int    @id @default(autoincrement())
-  title String @db.VarChar(20)
+  title String @unique @db.VarChar(20)
   value String
 }
 model Role {
@@ -83,7 +83,7 @@ model Post {
 }
 model ImagePost {
   id         Int      @id @default(autoincrement())
-  url        String   @unique @db.VarChar(50)
+  url        String   @unique @db.VarChar(130)
   created_at DateTime @default(now())
   post_id    Int
 
