@@ -1,121 +1,120 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  first_name   String   @db.VarChar(50) @default("Unknown")
-  last_name    String   @db.VarChar(50) @default("Unknown")
-  email        String   @unique
-  password     String   
-  phone        String?  @unique @db.VarChar(20)
-  rol_id       Int @default(1)
-  is_active    Boolean @default(true)
-  community_id Int @default(1)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  password     String
+  createdAt    DateTime  @default(now())
+  community_id Int       @default(1)
+  first_name   String    @default("Unknown") @db.VarChar(50)
+  is_active    Boolean   @default(true)
+  last_name    String    @default("Unknown") @db.VarChar(50)
+  phone        String?   @unique @db.VarChar(20)
+  rol_id       Int       @default(1)
+  updatedAt    DateTime  @default(now())
   last_login   DateTime?
-  // Relaciones
   posts        Post[]
-  role         Role      @relation(fields: [rol_id], references: [id])
   community    Community @relation(fields: [community_id], references: [id], onDelete: Cascade)
+  role         Role      @relation(fields: [rol_id], references: [id])
 }
+
 model CommunityInformation {
-  id    Int    @id @default(autoincrement())
-  title String @unique @db.VarChar(20)
-  value String
+  id           Int       @id @default(autoincrement())
+  title        String    @db.VarChar(20)
+  value        String
+  community_id Int
+  community    Community @relation(fields: [community_id], references: [id])
+
+  @@unique([title, community_id], name: "title_community_id")
 }
+
+
 model Role {
-  id    Int      @id @default(autoincrement())
-  name  RoleType @unique
-
-  users User[]
+  id               Int              @id @default(autoincrement())
+  name             RoleType         @unique
   role_permissions RolePermission[]
-  
+  users            User[]
 }
-enum RoleType {
-  Admin
-  Community_Leader
-  Street_Leader
-}
+
 model Community {
-  id          Int     @id @default(autoincrement())
-  name        String  @db.VarChar(50)
-  description String?
-  address     String  @db.VarChar(50)
-
-  posts Post[]
-  users User[]
-  testimonies Testimony[]
+  id            Int                    @id @default(autoincrement())
+  name          String                 @db.VarChar(100) 
+  description   String                 @db.Text         
+  address       String                 @db.VarChar(100) 
+  name_clap     String                 @default("N/A") @db.VarChar(150) 
+  rif_community String                 @default("00000000") @db.VarChar(20) 
+  communityInfo CommunityInformation[]
+  posts         Post[]
+  testimonies   Testimony[]
+  users         User[]
 }
+
 model PostCategory {
-  id    Int         @id @default(autoincrement())
+  id    Int          @id @default(autoincrement())
   name  CategoryType @unique
-
   posts Post[]
 }
-model Post {
-  id            Int       @id @default(autoincrement())
-  title         String    @db.VarChar(255)
-  content       String    @db.Text
-  status        PostStatus @default(pending_approval)
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  user_id       Int
-  community_id  Int
-  category_id   Int
 
-  user      User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  community     Community  @relation(fields: [community_id], references: [id], onDelete: Cascade)
-  category      PostCategory @relation(fields: [category_id], references: [id])
-  images        ImagePost[]
+model Post {
+  id           Int          @id @default(autoincrement())
+  title        String       @db.VarChar(255)
+  content      String
+  status       PostStatus   @default(pending_approval)
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+  user_id      Int
+  community_id Int
+  category_id  Int
+  images       ImagePost[]
+  category     PostCategory @relation(fields: [category_id], references: [id])
+  community    Community    @relation(fields: [community_id], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
+
 model ImagePost {
   id         Int      @id @default(autoincrement())
   url        String   @unique @db.VarChar(130)
   created_at DateTime @default(now())
   post_id    Int
-
   post       Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
 }
 
 model Testimony {
-  id           Int      @id @default(autoincrement())
-  name         String   @db.VarChar(20)
-  comment      String   @db.VarChar(150)
-  created_at   DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(20)
+  comment      String    @db.VarChar(150)
+  created_at   DateTime  @default(now())
   community_id Int
-
   community    Community @relation(fields: [community_id], references: [id], onDelete: Cascade)
 }
-model Permission {
-  id          Int    @id @default(autoincrement())
-  name        String @unique @db.VarChar(50)
-  description String? @db.Text
 
- role_permissions RolePermission[]
-  
+model Permission {
+  id               Int              @id @default(autoincrement())
+  name             String           @unique @db.VarChar(50)
+  description      String?
+  role_permissions RolePermission[]
 }
 
 model RolePermission {
-  role_id      Int
+  role_id       Int
   permission_id Int
-
-  role         Role      @relation(fields: [role_id], references: [id])
-  permission   Permission @relation(fields: [permission_id], references: [id])
+  permission    Permission @relation(fields: [permission_id], references: [id])
+  role          Role       @relation(fields: [role_id], references: [id])
 
   @@unique([role_id, permission_id])
+}
+
+enum RoleType {
+  Admin
+  Community_Leader
+  Street_Leader
 }
 
 enum PostStatus {

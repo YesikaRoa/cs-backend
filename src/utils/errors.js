@@ -44,6 +44,11 @@ const errorList = {
     message: 'El registro ya existe',
     error: 'DuplicateRecord',
   },
+  INVALID_DOCUMENT_TYP: {
+    status: 401,
+    message: 'Documento invalido',
+    error: 'InvalidDocument',
+  },
   INTERNAL_SERVER_ERROR: {
     status: 500,
     message: 'Error interno del servidor',

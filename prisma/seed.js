@@ -5,38 +5,39 @@ const prisma = new PrismaClient()
 const communities = [
   {
     id: 1,
-    name: 'Lote G Pirineos I',
+    name: 'CONSEJO COMUNAL PIRINEOS I LOTE G',
     description:
       'Consejo comunal enfocado en el fortalecimiento de la seguridad y la calidad de vida de sus habitantes',
     address: 'Desde Lote G, hasta antes de la calle del hambre',
+    name_clap: 'CLAP MARISCAL DE AYACUCHO DE PIRINEOS 1, LOTE H Y G',
+    rif_community: 'RIF C- 500455747',
   },
   {
     id: 2,
-    name: 'Lote H Rio Zuñiga',
+    name: 'CONSEJO COMUNAL LOTE H-URB. RIO ZUÑIGA',
     description:
-      'Consejo comunal que trabaja activamente en la conservación ambiental y la mejora de espacios públicos',
-    address: 'Calle del hambre',
+      'Consejo comunal que trabaja activamente por una comunidad mejor en la parroquia Pedro María Morantes.',
+    address: 'PIRINEOS I LOTE H U-CCO-18-08-02-021335',
+    name_clap: 'CLAP MARISCAL DE AYACUCHO DE PIRINEOS 1, LOTE H Y G',
+    rif_community: 'RIF C- 316356205',
   },
   {
     id: 3,
-    name: 'Libertador Cineral',
+    name: 'CONSEJO COMUNAL LIBERTADOR SINERAL',
     description:
-      'Consejo comunal conocido por su espíritu colaborativo y sus iniciativas en educación y desarrollo social.',
-    address: 'Desde la sede de los Bomberos, hasta la calle 2',
+      'Consejo comunal conocido por su espíritu colaborativo en la parroquia Pedro María Morantes.',
+    address: 'PIRINEOS I LOTE D Y E U-CCO-18-08-02-006545',
+    name_clap: 'CLAP LIBERTADOR PARTE BAJA',
+    rif_community: 'RIF J- 29974178-7',
   },
   {
     id: 4,
-    name: 'Rafael Urdaneta',
+    name: 'CONSEJO COMUNAL RAFAEL URDANETA',
     description:
-      'Consejo comunal que fomenta la unión vecinal y proyectos culturales en la parroquia Pedro María Morantes.',
-    address: 'Desde la licorería Isabelita, hasta Lote G',
-  },
-  {
-    id: 5,
-    name: 'Libertador',
-    description:
-      'Consejo comunal comprometido con el bienestar vecinal, destacada por sus actividades recreativas y programas comunitarios.',
-    address: 'Desde la calle 2, hasta la licorería Isabelita',
+      'Consejo comunal que fomenta la unión vecinal y proyectos comunitarios en la parroquia Pedro María Morantes.',
+    address: 'BARRIO LIBERTADOR PARTE ALTA U-CCO-18-08-02-023981',
+    name_clap: 'CLAP RAFAEL URDANETA DEL BARRIO LIBERTADOR PARTE ALTA',
+    rif_community: 'RIF C- 500455747',
   },
 ]
 
@@ -127,39 +128,53 @@ async function main() {
     {
       title: 'LOCATION',
       value: 'Barrio Libertador, Calle 4',
+      community_id: 1,
     },
     {
       title: 'PHONE_NUMBER',
       value: '02123462092',
+      community_id: 1,
     },
     {
       title: 'EMAIL',
       value: 'email@email.com',
+      community_id: 1,
     },
     {
       title: 'MISSION',
       value:
         'Promover la participación activa de la comunidad en la gestión y solución de sus necesidades, fomentando el desarrollo social, económico y cultural con base en la organización popular y la corresponsabilidad.',
+      community_id: 1,
     },
     {
       title: 'VISION',
       value:
         'Ser una comunidad organizada, solidaria y autosustentable, capaz de mejorar continuamente su calidad de vida mediante la unión, la planificación y el compromiso colectivo.',
+      community_id: 1,
     },
     {
       title: 'ABOUT',
       value:
         'El Consejo Comunal Libertador es un espacio de organización y participación ciudadana que busca mejorar la calidad de vida de sus habitantes a través de la gestión colectiva y la articulación de esfuerzos en pro del bienestar común.',
+      community_id: 1,
     },
   ]
 
   for (const info of infoEntries) {
     await prisma.communityInformation.upsert({
-      where: { title: info.title },
-      update: { value: info.value },
+      where: {
+        title_community_id: {
+          title: info.title,
+          community_id: info.community_id,
+        },
+      },
+      update: {
+        value: info.value,
+      },
       create: {
         title: info.title,
         value: info.value,
+        community_id: info.community_id,
       },
     })
   }

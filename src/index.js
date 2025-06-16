@@ -13,6 +13,7 @@ import communityRoute from './routes/community.routes.js'
 import postCategoryRoutes from './routes/postsCategories.routes.js'
 import dashboardRouter from './routes/dashboard.routes.js'
 import profileRoutes from './routes/profile.routes.js'
+import communityDocumentsRoutes from './routes/communityDocuments.route.js'
 
 import { errorHandler } from './middlewares/errorHandler.js'
 import { setupSwagger } from './docs/swagger.js'
@@ -31,6 +32,8 @@ app.use('/api/communities', communityRoute)
 app.use('/api/posts_categories', postCategoryRoutes)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/profile', profileRoutes)
+app.use('/api/documents', communityDocumentsRoutes)
+
 app.use(errorHandler)
 
 // Swagger docs
