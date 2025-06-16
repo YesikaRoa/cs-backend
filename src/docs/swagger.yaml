@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: Documentación de la API REST con Swagger
 servers:
-  - url: http://localhost:3002/api
+  - url: http://localhost:3004/api
 
 tags:
   - name: Auth
@@ -303,7 +303,7 @@ paths:
           description: No autorizado
         '404':
           description: Post no encontrado
-  /communityInfo:
+  /community_information:
     get:
       summary: Obtener toda la información de la comunidad
       tags: [Community]
@@ -330,7 +330,7 @@ paths:
       responses:
         '201':
           description: Información creada exitosamente
-  /communityInfo/{id}:
+  /community_information/{id}:
     get:
       summary: Obtener información por ID
       tags: [Community]
@@ -586,7 +586,7 @@ paths:
           description: Usuario no encontrado
         401:
           description: No autorizado
-  /community:
+  /communities:
     get:
       summary: Obtener nombres de todas las comunidades
       tags: [Community]
