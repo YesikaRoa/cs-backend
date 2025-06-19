@@ -51,13 +51,15 @@ async function main() {
   }
 
   // 2. Insert Communities
-  // Eliminamos todas las comunidades existentes (la eliminación en cascada se encargará de los registros relacionados)
-  await prisma.community.deleteMany({})
-
-  // Insertamos las nuevas comunidades
   for (const community of communities) {
-    await prisma.community.create({
-      data: community,
+    await prisma.community.upsert({
+      where: { id: community.id },
+      update: {
+        name: community.name,
+        description: community.description,
+        address: community.address,
+      },
+      create: community,
     })
   }
 
