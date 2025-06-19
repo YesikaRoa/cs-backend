@@ -8,7 +8,11 @@ import {
   changePostStatus,
 } from '../controllers/post.controller.js'
 import { validate } from '../middlewares/validateInput.js'
-import { createPostSchema, updatePostSchema } from '../schemas/posts.schema.js'
+import {
+  createPostSchema,
+  updatePostSchema,
+  changePostStatusSchema,
+} from '../schemas/posts.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
 import { upload } from '../middlewares/upload.js'
 
@@ -36,6 +40,11 @@ postRoutes.put(
 
 postRoutes.delete('/:id', verifyToken, deletePost)
 
-postRoutes.put('/:id/status', verifyToken, changePostStatus)
+postRoutes.put(
+  '/:id/status',
+  verifyToken,
+  validate(changePostStatusSchema),
+  changePostStatus
+)
 
 export default postRoutes
