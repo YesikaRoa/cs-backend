@@ -4,6 +4,18 @@ import { createError } from '../utils/errors.js'
 
 import path from 'path'
 
+const translateRoleName = (roleName) => {
+  const translations = {
+    COMMUNITY_LEADER: 'LÍDER COMUNITARIO',
+    ADMIN: 'Administrador',
+    MEMBER: 'Miembro',
+  }
+  return (
+    translations[roleName.toUpperCase()] ||
+    roleName.replace(/_/g, ' ').toLowerCase()
+  )
+}
+
 export const generateDocumentService = async (
   communityId,
   documentType,
@@ -16,6 +28,28 @@ export const generateDocumentService = async (
   if (!community) {
     throw new createError('COMMUNITY_NOT_FOUND')
   }
+
+  const leaderRoleIds = [2] // Puedes agregar más IDs si es necesario
+  const communityLeaders = await prisma.user.findMany({
+    where: {
+      is_active: true,
+      rol_id: { in: leaderRoleIds },
+      community_id: communityId,
+    },
+    select: {
+      first_name: true,
+      last_name: true,
+      cedula: true,
+      role: { select: { name: true } },
+    },
+  })
+
+  // Formateo para generar firmas
+  const formattedLeaders = communityLeaders.map((user) => ({
+    name: `${user.first_name} ${user.last_name}`,
+    ci: `V- ${user.cedula}`,
+    role: translateRoleName(user.role.name),
+  }))
 
   return new Promise((resolve, reject) => {
     try {
@@ -43,13 +77,20 @@ export const generateDocumentService = async (
       doc.moveDown(5)
 
       if (documentType === 'residence') {
-        generateResidenceDocument(doc, community, personalData, communityId)
+        generateResidenceDocument(
+          doc,
+          community,
+          personalData,
+          communityId,
+          formattedLeaders
+        )
       } else if (documentType === 'disincorporation') {
         generateDisincorporationDocument(
           doc,
           community,
           personalData,
-          communityId
+          communityId,
+          formattedLeaders
         )
       } else {
         throw createError('INVALID_DOCUMENT_TYPE')
@@ -65,7 +106,7 @@ export const generateDocumentService = async (
 const addCommunityHeader = (doc, communityId, documentType, community) => {
   const logosByDocumentType = {
     residence: {
-      1: '1.png',
+      1: 'CONSEJO COMUNAL PIRENEOS I LOTE G.png',
       2: 'logoLoteH.jpg',
       3: 'logoConsejoComunalSinaral.png',
       4: 'logoRafaelUrdaneta.jpg',
@@ -91,7 +132,12 @@ const addCommunityHeader = (doc, communityId, documentType, community) => {
     )
   ) {
     doc.fontSize(12).text(community.name, 200, 50, { align: 'right' })
-    doc.text(community.address, 200, 70, { align: 'right' })
+    doc.text(community.address, 92, 70, {
+      align: 'right', // Alineación derecha
+      width: 450, // Define el ancho del texto
+      lineBreak: false, // Evita saltos de línea
+    })
+
     doc.text(community.rif_community, 200, 90, { align: 'right' })
   }
 }
@@ -101,7 +147,8 @@ const generateResidenceDocument = (
   doc,
   community,
   personalData,
-  communityId
+  communityId,
+  leaders
 ) => {
   doc
     .fontSize(14)
@@ -133,7 +180,7 @@ const generateResidenceDocument = (
     )
 
   doc.moveDown(2)
-  generateSignatures(doc, communityId, 'residence')
+  generateSignatures(doc, communityId, 'residence', leaders)
   doc.moveDown(3)
   addContactInfo(doc, communityId, 'residence')
 }
@@ -143,7 +190,8 @@ const generateDisincorporationDocument = (
   doc,
   community,
   personalData,
-  communityId
+  communityId,
+  leaders
 ) => {
   doc
     .fontSize(14)
@@ -191,35 +239,41 @@ const generateDisincorporationDocument = (
   )
 
   doc.moveDown(2)
-  generateSignatures(doc, communityId, 'disincorporation')
+  generateSignatures(doc, communityId, 'disincorporation', leaders)
   doc.moveDown(2)
   addContactInfo(doc, communityId, 'disincorporation')
 }
 
 //firmas
 
-const generateSignatures = (doc, communityId, documentType) => {
-  const signatures = {
+const generateSignatures = (doc, communityId, documentType, leaders) => {
+  // Firmas fijas por comunidad y tipo de documento
+  const staticSignatures = {
     1:
       documentType === 'residence'
         ? [
             {
-              name: 'RUBY ORDOÑEZ',
-              ci: 'V- 14.180.537',
-              role: 'LIDER DE COMUNIDAD',
+              name: 'JUDITH RAMÍREZ',
+              ci: 'V- 10.171.652',
+              role: 'V. COMITÉ ADMINISTRATIVA',
             },
             {
-              name: 'INGRY VIVAS',
-              ci: 'V- 9.218.100',
-              role: 'COMISION ELECTORAL',
+              name: 'MIGUEL RUEDA',
+              ci: 'V- 11.503.980',
+              role: 'V. UNIDAD EJECUTIVA',
+            },
+            {
+              name: 'GLADYS CÁCERES',
+              ci: 'V- 3.618.616',
+              role: 'V. CONTRALORÍA SOCIAL',
+            },
+            {
+              name: 'OLIVERIO VARGAS',
+              ci: 'V- 4.633.172',
+              role: 'V. DE COMISIÓN ELECTORAL',
             },
           ]
         : [
-            {
-              name: 'RUBY ORDOÑEZ',
-              ci: 'V- 14.180.537',
-              role: 'LIDER DE COMUNIDAD',
-            },
             {
               name: '________________',
               ci: 'V-______________',
@@ -230,17 +284,12 @@ const generateSignatures = (doc, communityId, documentType) => {
       documentType === 'residence'
         ? [
             {
-              name: 'MARIA CORREA',
-              ci: 'V- 10.162.669',
-              role: 'V. COMITÉ ADMINISTRATIVA',
-            },
-            {
               name: 'GLADYS GAMBOA',
               ci: 'V- 3.429.447',
               role: 'V. COMITÉ DE ALIMENTACIÓN',
             },
             {
-              name: 'DANIEL  CHACÓN',
+              name: 'DANIEL CHACÓN',
               ci: 'V- 4.211.215',
               role: 'V. CONTRALORÍA SOCIAL',
             },
@@ -262,11 +311,6 @@ const generateSignatures = (doc, communityId, documentType) => {
           ]
         : [
             {
-              name: 'MARIA CORREA',
-              ci: 'V- 10.162.669',
-              role: 'V. COMITÉ ADMINISTRATIVA',
-            },
-            {
               name: '________________',
               ci: 'V-______________',
               role: 'LIDER DE CALLE',
@@ -274,20 +318,8 @@ const generateSignatures = (doc, communityId, documentType) => {
           ],
     3:
       documentType === 'residence'
-        ? [
-            {
-              name: 'LUIS CARVAJAL',
-              ci: 'V- 9.148.965',
-              role: 'LIDER DE COMUNIDAD',
-            },
-            { name: 'WOLFAN MENDOZA', ci: 'V- 11.113.752', role: 'VOCERO' },
-          ]
+        ? [{ name: 'WOLFAN MENDOZA', ci: 'V- 11.113.752', role: 'VOCERO' }]
         : [
-            {
-              name: 'LUIS CARVAJAL',
-              ci: 'V- 9.148.965',
-              role: 'LIDER DE COMUNIDAD',
-            },
             {
               name: '________________',
               ci: 'V-______________',
@@ -298,22 +330,12 @@ const generateSignatures = (doc, communityId, documentType) => {
       documentType === 'residence'
         ? [
             {
-              name: 'RUBY ORDOÑEZ',
-              ci: 'V- 14.180.537',
-              role: 'LIDER DE COMUNIDAD',
-            },
-            {
               name: 'INGRY VIVAS',
               ci: 'V- 9.218.100',
-              role: 'COMISION ELECTORAL',
+              role: 'COMISIÓN ELECTORAL',
             },
           ]
         : [
-            {
-              name: 'RUBY ORDOÑEZ',
-              ci: 'V- 14.180.537',
-              role: 'LIDER DE COMUNIDAD',
-            },
             {
               name: '________________',
               ci: 'V-______________',
@@ -322,17 +344,26 @@ const generateSignatures = (doc, communityId, documentType) => {
           ],
   }
 
-  const signers = signatures[communityId] || [
-    { name: 'N/A', ci: 'N/A', role: 'N/A' },
+  // Combinar firmas estáticas con las dinámicas (líderes)
+  // leaders debe ser un arreglo de objetos con { name, ci, role }
+  const signers = [
+    ...(staticSignatures[communityId] || [
+      { name: 'N/A', ci: 'N/A', role: 'N/A' },
+    ]),
+    ...leaders,
   ]
 
+  // Configuración para la posición de las firmas
   let initialY = 470
   let columnWidth = 200
   let rowHeight = 90
   let maxColumns = 4
 
-  if (communityId === 2 && documentType === 'residence') {
-    columnWidth = 190
+  if (
+    communityId === 2 ||
+    (communityId === 1 && documentType === 'residence')
+  ) {
+    columnWidth = 180
     rowHeight = 110
     maxColumns = 3
     initialY = 420
@@ -343,15 +374,13 @@ const generateSignatures = (doc, communityId, documentType) => {
     initialY = 550
   }
 
-  // Dibujar firmas en PDF
+  // Dibujar firmas en el PDF
   signers.forEach((signer, index) => {
     const xPosition = 50 + (index % maxColumns) * columnWidth
     const yPosition = initialY + Math.floor(index / maxColumns) * rowHeight
 
-    // Usar una fuente estándar para las rayitas
     doc.font('Helvetica').text('________________', xPosition, yPosition)
 
-    // Verificar si es una línea de rayitas o contenido real
     if (signer.name !== '________________') {
       doc.font('Helvetica-Bold').text(signer.name, xPosition, yPosition + 20)
     } else {
@@ -373,18 +402,16 @@ const addContactInfo = (doc, communityId, documentType) => {
   const contactsByType = {
     residence: {
       1: {
-        email: 'CLAPBLIBERTADORPA@GMAIL.COM',
-        instagram: '@CLAPBLIBERTADORPA',
-        phones: '0414-0748775 / 0424-7347467',
+        email: 'CCPIRINEOSILOTEG@GMAIL.COM',
+        phones: '0426-7270336 / 0412-6832106',
       },
       2: {
-        email: 'consejocomunallotehurbzuniga@gmail.com',
+        email: 'CONSEJOCOMUNALLOTEHURBZUNIGA@GMAIL.COM',
         phones: '0424-7427766',
       },
       3: {
-        email: 'contacto3@gmail.com',
-        instagram: '@comunidad3',
-        phones: '0412-3456789 / 0426-9876543',
+        email: 'LUIS11ENERO2018@GMAIL.COM',
+        phones: '0424-7570848',
       },
       4: {
         email: 'CLAPBLIBERTADORPA@GMAIL.COM',
@@ -392,11 +419,10 @@ const addContactInfo = (doc, communityId, documentType) => {
         phones: '0414-0748775 / 0424-7347467',
       },
     },
-    desincorporation: {
+    disincorporation: {
       3: {
-        email: 'contacto3@gmail.com',
-        instagram: '@comunidad3',
-        phones: '0412-3456789 / 0426-9876543',
+        email: 'luis11enero2018@gmail.com',
+        phones: '0424-7570848',
       },
       4: {
         email: 'CLAPBLIBERTADORPA@GMAIL.COM',

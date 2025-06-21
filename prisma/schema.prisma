@@ -16,6 +16,7 @@ model User {
   first_name   String    @default("Unknown") @db.VarChar(50)
   is_active    Boolean   @default(true)
   last_name    String    @default("Unknown") @db.VarChar(50)
+  cedula       String    @unique @db.VarChar(20)
   phone        String?   @unique @db.VarChar(20)
   rol_id       Int       @default(1)
   updatedAt    DateTime  @default(now())
