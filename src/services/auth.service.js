@@ -1,4 +1,6 @@
 import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
+import { NodemailerAdapter } from '../adapters/email/NodemailerAdapter.js'
+
 import jwt from 'jsonwebtoken'
 import { prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
@@ -75,6 +77,51 @@ export const loginUser = async ({ email, password }) => {
   return {
     token,
   }
+}
+
+export const recoverPassword = async ({ email }) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } })
+
+    if (!user) throw createError('EMAIL_NOT_FOUND')
+
+    const newPassword = generateRandomPassword()
+    const hashedPassword = await BcryptAdapter.hash(newPassword)
+
+    await prisma.user.update({
+      where: { email: user.email },
+      data: { password: hashedPassword },
+    })
+
+    const emailService = new NodemailerAdapter()
+    const data = {
+      to: email,
+      subject: 'Servicio de Recuperación de Contraseña - Consejo Comunal',
+      html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <p>Hola ${user.first_name},</p>
+        <p>Tu contraseña ha sido actualizada correctamente.</p>
+        <p><strong>Nueva contraseña:</strong> <span style="color: #007BFF;">${newPassword}</span></p>
+        <p>Por seguridad, te recomendamos cambiar esta contraseña tan pronto inicies sesión.</p>
+        <hr/>
+        <p style="font-size: 12px; color: #999;">Este correo fue generado automáticamente. Por favor, no respondas.</p>
+      </div>
+    `,
+    }
+
+    await emailService.sendEmail(data)
+  } catch (error) {
+    throw error
+  }
+}
+
+const generateRandomPassword = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let password = ''
+  for (let i = 0; i < 6; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
 }
 
 export const getCurrentDate = async () => {

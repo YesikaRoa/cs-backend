@@ -39,7 +39,7 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     })
-    if (!user) throw createError('USER_NOT_FOUND')
+    if (!user) throw createError('RECORD_NOT_FOUND')
 
     const isMatch = await bcrypt.compare(currentPassword, user.password)
     if (!isMatch) throw createError('INVALID_CREDENTIALS')
