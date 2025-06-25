@@ -3,14 +3,24 @@ import {
   login,
   register,
   getCurrentDate,
+  recoverPassword,
 } from '../controllers/auth.controller.js'
 import { validate } from '../middlewares/validateInput.js'
-import { registerSchema, loginSchema } from '../schemas/auth.schema.js'
+import {
+  registerSchema,
+  loginSchema,
+  recoverPasswordSchema,
+} from '../schemas/auth.schema.js'
 
 const router = express.Router()
 
 router.get('/', getCurrentDate)
 router.post('/login', validate(loginSchema), login)
 router.post('/register', validate(registerSchema), register)
+router.post(
+  '/recover_password',
+  validate(recoverPasswordSchema),
+  recoverPassword
+)
 
 export default router
