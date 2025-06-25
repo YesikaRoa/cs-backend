@@ -2,7 +2,9 @@ import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
 import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
-import { deleteFromCloudinaryUsers } from '../utils/cloudinary.js'
+import CloudinaryAdapter from '../adapters/CloudinaryAdapter.js'
+
+const cloudinaryUser = new CloudinaryAdapter('users')
 
 // Crear un nuevo usuario
 export const createUser = async (reqBody) => {
@@ -34,7 +36,6 @@ export const createUser = async (reqBody) => {
 
     if (files && files.length > 0) {
       const imageUrl = files[0].path
-
       userDataToCreate.url_image = imageUrl
     }
 
@@ -151,7 +152,7 @@ export const updateUser = async (id, data, files) => {
 
     if (files && files.length > 0) {
       if (currentUser.url_image) {
-        await deleteFromCloudinaryUsers(currentUser.url_image)
+        await cloudinaryUser.deleteByUrl(currentUser.url_image)
       }
 
       const newImageUrl = files[0].path
@@ -197,7 +198,7 @@ export const deleteUser = async (id) => {
     }
 
     if (user.url_image) {
-      await deleteFromCloudinaryUsers(user.url_image)
+      await cloudinaryUser.deleteByUrl(user.url_image)
     }
 
     await prisma.user.delete({

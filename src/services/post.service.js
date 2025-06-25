@@ -1,7 +1,9 @@
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
-import { deleteFromCloudinary } from '../utils/cloudinary.js'
+import CloudinaryAdapter from '../adapters/CloudinaryAdapter.js'
+
+const cloudinaryPost = new CloudinaryAdapter('posts')
 
 //Crea un nuevo post
 export const createPost = async (postData) => {
@@ -132,7 +134,7 @@ export const updatePost = async (id, data, files = []) => {
 
     if (files.length > 0) {
       for (const image of existingPost.images) {
-        await deleteFromCloudinary(image.url)
+        await cloudinaryPost.deleteByUrl(image.url)
       }
 
       await prisma.imagePost.deleteMany({
@@ -180,7 +182,7 @@ export const deletePost = async (id) => {
     }
 
     for (const image of post.images) {
-      await deleteFromCloudinary(image.url)
+      await cloudinaryPost.deleteByUrl(image.url)
     }
 
     await prisma.imagePost.deleteMany({
