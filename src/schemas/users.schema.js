@@ -18,14 +18,11 @@ export const createUserSchema = z.object({
     .string()
     .max(20, { message: 'El teléfono no puede exceder 20 caracteres' })
     .optional(),
-  rol_id: z
-    .number()
-    .int({ message: 'El rol debe ser un número entero' })
-    .default(1),
+  rol_id: z.number().int().positive({ message: 'El rol es requerido' }),
   community_id: z
     .number()
-    .int({ message: 'La comunidad debe ser un número entero' })
-    .default(1),
+    .int()
+    .positive({ message: 'La comunidad es requerida' }),
   is_active: z.boolean().optional().default(true),
 })
 

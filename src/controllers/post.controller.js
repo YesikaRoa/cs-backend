@@ -4,7 +4,9 @@ import {
   getPostById as getPostByIdService,
   updatePost as updatePostService,
   deletePost as deletePostService,
+  changePostStatus as changePostStatusService,
 } from '../services/post.service.js'
+import { createError } from '../utils/errors.js'
 
 export const createPost = async (req, res, next) => {
   try {
@@ -80,6 +82,21 @@ export const deletePost = async (req, res, next) => {
 
     res.status(200).json({
       message: 'Publicación eliminada con éxito',
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const changePostStatus = async (req, res, next) => {
+  try {
+    if (![1, 2].includes(req.user.rol_id)) {
+      return next(createError('UNAUTHORIZED'))
+    }
+
+    await changePostStatusService(req.params.id, req.body.status)
+    res.status(200).json({
+      message: 'Estado de la publicación actualizado correctamente',
     })
   } catch (error) {
     next(error)

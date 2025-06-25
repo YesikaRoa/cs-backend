@@ -201,3 +201,22 @@ export const deletePost = async (id) => {
     throw error
   }
 }
+
+export const changePostStatus = async (id, newStatus) => {
+  try {
+    const numericId = validateAndConvertId(id)
+    await prisma.post.update({
+      where: { id: numericId },
+      data: { status: newStatus },
+    })
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+
+    throw error
+  }
+}
