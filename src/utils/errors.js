@@ -59,6 +59,16 @@ const errorList = {
     message: 'Solo se permiten hasta 3 imágenes por post.',
     error: 'BadRequest',
   },
+  INVALID_DOCUMENT_TYPE: {
+    status: 400,
+    message: 'Tipo de documento inválido',
+    error: 'BadRequest',
+  },
+  ERROR_PDF: {
+    status: 400,
+    message: 'Error al procesar el PDF',
+    error: 'BadRequest',
+  },
 }
 
 export function createError(code) {

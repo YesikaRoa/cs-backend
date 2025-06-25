@@ -6,7 +6,7 @@ import path from 'path'
 
 const translateRoleName = (roleName) => {
   const translations = {
-    COMMUNITY_LEADER: 'LÍDER COMUNITARIO',
+    COMMUNITY_LEADER: 'Jefe de Comunidad',
     ADMIN: 'Administrador',
     MEMBER: 'Miembro',
   }
@@ -29,11 +29,13 @@ export const generateDocumentService = async (
     throw new createError('COMMUNITY_NOT_FOUND')
   }
 
-  const leaderRoleIds = [2] // Puedes agregar más IDs si es necesario
+  if (!['residence', 'disincorporation'].includes(documentType))
+    throw createError('INVALID_DOCUMENT_TYPE')
+
   const communityLeaders = await prisma.user.findMany({
     where: {
       is_active: true,
-      rol_id: { in: leaderRoleIds },
+      rol_id: 2,
       community_id: communityId,
     },
     select: {
@@ -47,7 +49,7 @@ export const generateDocumentService = async (
   // Formateo para generar firmas
   const formattedLeaders = communityLeaders.map((user) => ({
     name: `${user.first_name} ${user.last_name}`,
-    ci: `V- ${user.cedula}`,
+    ci: `V-${user.cedula}`,
     role: translateRoleName(user.role.name),
   }))
 
@@ -71,44 +73,32 @@ export const generateDocumentService = async (
       doc.fontSize(12).text(formattedDate, 400, 20, { align: 'right' })
       doc.moveDown(1)
 
-      addCommunityHeader(doc, communityId, documentType, community)
+      addCommunityHeader(doc, documentType, community)
 
       doc.text('', 50, 100)
       doc.moveDown(5)
 
-      if (documentType === 'residence') {
-        generateResidenceDocument(
-          doc,
-          community,
-          personalData,
-          communityId,
-          formattedLeaders
-        )
-      } else if (documentType === 'disincorporation') {
-        generateDisincorporationDocument(
-          doc,
-          community,
-          personalData,
-          communityId,
-          formattedLeaders
-        )
-      } else {
-        throw createError('INVALID_DOCUMENT_TYPE')
+      const documentGenerators = {
+        residence: generateResidenceDocument,
+        disincorporation: generateDisincorporationDocument,
       }
+
+      const generatorFn = documentGenerators[documentType]
+      generatorFn(doc, community, personalData, formattedLeaders)
 
       doc.end()
     } catch (error) {
-      console.error('Error generating PDF:', error)
+      throw createError('ERROR_PDF')
     }
   })
 }
 
-const addCommunityHeader = (doc, communityId, documentType, community) => {
+const addCommunityHeader = (doc, documentType, community) => {
   const logosByDocumentType = {
     residence: {
-      1: 'CONSEJO COMUNAL PIRENEOS I LOTE G.png',
+      1: 'logoPirineosILoteG.png',
       2: 'logoLoteH.jpg',
-      3: 'logoConsejoComunalSinaral.png',
+      3: 'logoSinaral.png',
       4: 'logoRafaelUrdaneta.jpg',
     },
     disincorporation: {
@@ -119,7 +109,7 @@ const addCommunityHeader = (doc, communityId, documentType, community) => {
     },
   }
 
-  const logoFileName = logosByDocumentType[documentType]?.[communityId]
+  const logoFileName = logosByDocumentType[documentType]?.[community.id]
   if (!logoFileName) return
 
   const logoPath = path.resolve('assets', logoFileName)
@@ -128,7 +118,7 @@ const addCommunityHeader = (doc, communityId, documentType, community) => {
   if (
     !(
       documentType === 'disincorporation' &&
-      (communityId === 1 || communityId === 2)
+      (community.id === 1 || community.id === 2)
     )
   ) {
     doc.fontSize(12).text(community.name, 200, 50, { align: 'right' })
@@ -143,13 +133,7 @@ const addCommunityHeader = (doc, communityId, documentType, community) => {
 }
 // Formato 1: Carta de Residencia
 
-const generateResidenceDocument = (
-  doc,
-  community,
-  personalData,
-  communityId,
-  leaders
-) => {
+const generateResidenceDocument = (doc, community, personalData, leaders) => {
   doc
     .fontSize(14)
     .font('Helvetica-Bold')
@@ -180,9 +164,9 @@ const generateResidenceDocument = (
     )
 
   doc.moveDown(2)
-  generateSignatures(doc, communityId, 'residence', leaders)
+  generateSignatures(doc, community.id, 'residence', leaders)
   doc.moveDown(3)
-  addContactInfo(doc, communityId, 'residence')
+  addContactInfo(doc, community.id, 'residence')
 }
 
 // Formato 2: Constancia de Desincorporación
@@ -190,7 +174,6 @@ const generateDisincorporationDocument = (
   doc,
   community,
   personalData,
-  communityId,
   leaders
 ) => {
   doc
@@ -216,14 +199,14 @@ const generateDisincorporationDocument = (
       text: `Reciban de nuestra parte un saludo bolivariano, nosotros integrantes del `,
       bold: false,
     },
-    { text: `${community.name_clap}`, bold: true },
+    { text: ` ${community.name_clap}`, bold: true },
     {
       text: `. Por medio de la presente nos dirigimos a ustedes con la finalidad de informarles que el Sr(a) `,
       bold: false,
     },
     { text: `${personalData.fullName}`, bold: true },
     {
-      text: `con cédula de identidad N.- V-${personalData.idNumber},`,
+      text: ` con cédula de identidad N.- V-${personalData.idNumber},`,
       bold: false,
     },
     {
@@ -239,9 +222,9 @@ const generateDisincorporationDocument = (
   )
 
   doc.moveDown(2)
-  generateSignatures(doc, communityId, 'disincorporation', leaders)
+  generateSignatures(doc, community.id, 'disincorporation', leaders)
   doc.moveDown(2)
-  addContactInfo(doc, communityId, 'disincorporation')
+  addContactInfo(doc, community.id, 'disincorporation')
 }
 
 //firmas
