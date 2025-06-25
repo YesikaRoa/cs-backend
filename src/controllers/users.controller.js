@@ -17,8 +17,9 @@ export const createUser = async (req, res, next) => {
       rol_id,
       community_id,
     } = req.body
+    const files = req.files || []
 
-    await createUserService({
+    const userDataForService = {
       first_name,
       last_name,
       email,
@@ -26,7 +27,10 @@ export const createUser = async (req, res, next) => {
       phone,
       rol_id,
       community_id,
-    })
+      files,
+    }
+
+    await createUserService(userDataForService)
 
     res.status(201).json({
       message: 'Usuario creado con éxito',
@@ -56,7 +60,18 @@ export const getUserById = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    await updateUserService(req.params.id, req.body)
+    const { first_name, last_name, email, phone } = req.body
+
+    const files = req.files || []
+
+    const data = {
+      first_name,
+      last_name,
+      email,
+      phone,
+    }
+
+    await updateUserService(req.params.id, data, files)
     res.status(200).json({ message: 'Usuario actualizado con éxito' })
   } catch (error) {
     next(error)

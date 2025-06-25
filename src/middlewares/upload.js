@@ -12,4 +12,14 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage })
 
-export { upload }
+const usersStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'users',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+  },
+})
+
+const uploadUsers = multer({ storage: usersStorage })
+
+export { upload, uploadUsers }
