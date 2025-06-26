@@ -1,15 +1,10 @@
 import multer from 'multer'
-import { CloudinaryStorage } from 'multer-storage-cloudinary'
-import cloudinary from '../utils/cloudinary.js'
+import CloudinaryAdapter from '../adapters/CloudinaryAdapter.js'
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'posts',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-  },
-})
+const postAdapter = new CloudinaryAdapter('posts')
+const userAdapter = new CloudinaryAdapter('users')
 
-const upload = multer({ storage })
+const uploadPosts = multer({ storage: postAdapter.getStorage() })
+const uploadUsers = multer({ storage: userAdapter.getStorage() })
 
-export { upload }
+export { uploadPosts, uploadUsers }

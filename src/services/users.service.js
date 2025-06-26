@@ -2,6 +2,9 @@ import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
 import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
+import CloudinaryAdapter from '../adapters/CloudinaryAdapter.js'
+
+const cloudinaryUser = new CloudinaryAdapter('users')
 
 // Crear un nuevo usuario
 export const createUser = async (reqBody) => {
@@ -14,24 +17,32 @@ export const createUser = async (reqBody) => {
       phone,
       rol_id,
       community_id,
+      files,
     } = reqBody
 
-    // Encriptar el password
     const hashedPassword = await BcryptAdapter.hash(password)
 
-    const data = {
+    const userDataToCreate = {
       first_name,
       last_name,
       email,
       password: hashedPassword,
       phone,
-      rol_id,
-      community_id,
+      rol_id: parseInt(rol_id),
+      community_id: parseInt(community_id),
       is_active: true,
+      url_image: '',
     }
 
-    await prisma.user.create({
-      data,
+    if (files && files.length > 0) {
+      const imageUrl = files[0].path
+      userDataToCreate.url_image = imageUrl
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.create({
+        data: userDataToCreate,
+      })
     })
   } catch (error) {
     if (
@@ -40,7 +51,8 @@ export const createUser = async (reqBody) => {
     ) {
       throw createError('DUPLICATE_RECORD')
     }
-    throw createError('INTERNAL_SERVER_ERROR')
+
+    throw error
   }
 }
 
@@ -55,6 +67,7 @@ export const getAllUsers = async () => {
       phone: true,
       rol_id: true,
       community_id: true,
+      url_image: true,
       is_active: true,
       role: {
         select: {
@@ -89,6 +102,7 @@ export const getUserById = async (id) => {
         phone: true,
         rol_id: true,
         community_id: true,
+        url_image: true,
         is_active: true,
         role: {
           select: {
@@ -123,14 +137,33 @@ export const getUserById = async (id) => {
 }
 
 // Actualizar un usuario
-export const updateUser = async (id, data) => {
+export const updateUser = async (id, data, files) => {
   try {
     const numericId = validateAndConvertId(id)
 
-    await prisma.user.update({
+    const currentUser = await prisma.user.findUnique({
+      where: { id: numericId },
+    })
+
+    if (!currentUser) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+
+    if (files && files.length > 0) {
+      if (currentUser.url_image) {
+        await cloudinaryUser.deleteByUrl(currentUser.url_image)
+      }
+
+      const newImageUrl = files[0].path
+      data.url_image = newImageUrl
+    }
+
+    const updatedUser = await prisma.user.update({
       where: { id: numericId },
       data,
     })
+
+    return updatedUser
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -154,6 +187,18 @@ export const updateUser = async (id, data) => {
 export const deleteUser = async (id) => {
   try {
     const numericId = validateAndConvertId(id)
+
+    const user = await prisma.user.findUnique({
+      where: { id: numericId },
+    })
+
+    if (!user) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+
+    if (user.url_image) {
+      await cloudinaryUser.deleteByUrl(user.url_image)
+    }
 
     await prisma.user.delete({
       where: { id: numericId },
