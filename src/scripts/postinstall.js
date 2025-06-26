@@ -34,6 +34,9 @@ try {
     console.log('[postinstall] Running migrate:prod...')
     execSync('npm run migrate:prod', { stdio: 'inherit' })
   }
+
+  console.log('[postinstall] Generating Prisma client...')
+  execSync('npx prisma generate', { stdio: 'inherit' })
 } catch (err) {
   console.error('[postinstall] Error during migration:', err.message)
   process.exit(1)
