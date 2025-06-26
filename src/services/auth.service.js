@@ -49,8 +49,18 @@ export const registerUser = async (reqBody) => {
 
 export const loginUser = async ({ email, password }) => {
   const user = await prisma.user.findUnique({
+    select: {
+      id: true,
+      email: true,
+      first_name: true,
+      last_name: true,
+      url_image: true,
+      community_id: true,
+      rol_id: true,
+      password: true,
+      role: { select: { name: true } },
+    },
     where: { email },
-    include: { role: true },
   })
 
   const isValid = user && (await BcryptAdapter.compare(password, user.password))
@@ -59,7 +69,7 @@ export const loginUser = async ({ email, password }) => {
   const token = jwt.sign(
     {
       id: user.id,
-      email,
+      email: user.email,
       community_id: user.community_id,
       rol_id: user.rol_id,
       rol_name: user.role.name,
@@ -76,6 +86,9 @@ export const loginUser = async ({ email, password }) => {
 
   return {
     token,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    url_image: user.url_image,
   }
 }
 
