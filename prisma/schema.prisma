@@ -23,10 +23,10 @@ model User {
   rol_id       Int @default(1)
   is_active    Boolean @default(true)
   community_id Int @default(1)
+  last_login   DateTime?
+  url_image    String   @db.VarChar(130)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now())
-  last_login   DateTime?
-  url_image     String   @unique @db.VarChar(130)
   // Relaciones
   posts        Post[]
   role         Role      @relation(fields: [rol_id], references: [id])

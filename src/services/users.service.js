@@ -17,9 +17,8 @@ export const createUser = async (reqBody) => {
       phone,
       rol_id,
       community_id,
+      files,
     } = reqBody
-
-    const files = reqBody.files
 
     const hashedPassword = await BcryptAdapter.hash(password)
 
@@ -32,6 +31,7 @@ export const createUser = async (reqBody) => {
       rol_id: parseInt(rol_id),
       community_id: parseInt(community_id),
       is_active: true,
+      url_image: '',
     }
 
     if (files && files.length > 0) {
@@ -52,8 +52,7 @@ export const createUser = async (reqBody) => {
       throw createError('DUPLICATE_RECORD')
     }
 
-    console.error('Error en createUser:', error)
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 

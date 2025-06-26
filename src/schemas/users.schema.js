@@ -22,7 +22,6 @@ export const createUserSchema = z.object({
     .number()
     .int()
     .positive({ message: 'La comunidad es requerida' }),
-  is_active: z.boolean().optional().default(true),
 })
 
 export const updateUserSchema = createUserSchema.partial()

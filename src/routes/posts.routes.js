@@ -14,14 +14,14 @@ import {
   changePostStatusSchema,
 } from '../schemas/posts.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
-import { upload } from '../middlewares/upload.js'
+import { uploadPosts } from '../middlewares/upload.js'
 
 const postRoutes = express.Router()
 
 postRoutes.post(
   '/',
   verifyToken,
-  upload.array('images', 3),
+  uploadPosts.array('images', 3),
   validate(createPostSchema),
   createPost
 )
@@ -33,7 +33,7 @@ postRoutes.get('/:id', getPostById)
 postRoutes.put(
   '/:id',
   verifyToken,
-  upload.array('images', 3),
+  uploadPosts.array('images', 3),
   validate(updatePostSchema),
   updatePost
 )

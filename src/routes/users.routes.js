@@ -16,7 +16,7 @@ const userRoutes = express.Router()
 userRoutes.post(
   '/',
   verifyToken,
-  uploadUsers.array('images', 1),
+  uploadUsers.array('image', 1),
   validate(createUserSchema),
   createUser
 )
@@ -28,7 +28,7 @@ userRoutes.get('/:id', getUserById)
 userRoutes.put(
   '/:id',
   verifyToken,
-  uploadUsers.array('images', 1),
+  uploadUsers.array('image', 1),
   validate(updateUserSchema),
   updateUser
 )

@@ -110,18 +110,20 @@ async function main() {
   }
 
   // 5. Optionally insert a first admin user
-  const hashedPassword = await BcryptAdapter.hash('123456')
+  const hashedPassword = await BcryptAdapter.hash('abc123')
 
   await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
+    where: { email: 'serviciocomunitario599@gmail.com' },
     update: {},
     create: {
-      email: 'admin@example.com',
+      email: 'serviciocomunitario599@gmail.com',
       password: hashedPassword,
       first_name: 'Admin',
       last_name: 'User',
       rol_id: adminRole.id,
       community_id: 1,
+      url_image:
+        'https://gravatar.com/avatar/c51e1cf841e009eec919ca2e1f7ed7a8?s=400&d=robohash&r=x',
     },
   })
 
