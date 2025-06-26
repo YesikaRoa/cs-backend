@@ -120,8 +120,12 @@ async function main() {
       password: hashedPassword,
       first_name: 'Admin',
       last_name: 'User',
-      rol_id: adminRole.id,
-      community_id: 1,
+      community: {
+        connect: { id: 1 },
+      },
+      role: {
+        connect: { id: adminRole.id },
+      },
       url_image:
         'https://gravatar.com/avatar/c51e1cf841e009eec919ca2e1f7ed7a8?s=400&d=robohash&r=x',
     },
