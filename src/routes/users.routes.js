@@ -5,6 +5,7 @@ import {
   getUserById,
   updateUser,
   deleteUser,
+  getLeaders,
 } from '../controllers/users.controller.js'
 import { validate } from '../middlewares/validateInput.js'
 import { createUserSchema, updateUserSchema } from '../schemas/users.schema.js'
@@ -12,6 +13,8 @@ import { verifyToken } from '../middlewares/auth.js'
 import { uploadUsers } from '../middlewares/upload.js'
 
 const userRoutes = express.Router()
+
+userRoutes.get('/leaders', getLeaders)
 
 userRoutes.post(
   '/',

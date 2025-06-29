@@ -4,6 +4,7 @@ import {
   getUserById as getUserByIdService,
   updateUser as updateUserService,
   deleteUser as deleteUserService,
+  getLeadersByCommunity as getLeadersService,
 } from '../services/users.service.js'
 
 export const createUser = async (req, res, next) => {
@@ -84,6 +85,24 @@ export const deleteUser = async (req, res, next) => {
     res.status(200).json({
       message: 'Usuario eliminado con éxito',
     })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getLeaders = async (req, res, next) => {
+  try {
+    const { communityId } = req.query
+
+    if (!communityId) {
+      return res
+        .status(400)
+        .json({ message: 'El parámetro communityId es requerido' })
+    }
+
+    const leaders = await getLeadersService(communityId)
+
+    res.status(200).json({ data: leaders })
   } catch (error) {
     next(error)
   }
