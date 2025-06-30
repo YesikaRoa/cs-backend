@@ -214,3 +214,44 @@ export const deleteUser = async (id) => {
     throw error
   }
 }
+
+// Obtener líderes por comunidad
+export const getLeadersByCommunity = async (communityId) => {
+  try {
+    let where = {
+      role: {
+        name: {
+          in: ['Community_Leader', 'Street_Leader'],
+        },
+      },
+    }
+
+    if (communityId !== null && communityId !== undefined) {
+      const numericCommunityId = validateAndConvertId(communityId)
+      where.community_id = numericCommunityId
+    }
+
+    const leaders = await prisma.user.findMany({
+      where,
+      select: {
+        first_name: true,
+        last_name: true,
+        url_image: true,
+        role: {
+          select: {
+            name: true,
+          },
+        },
+        community: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    })
+
+    return leaders
+  } catch (error) {
+    throw error
+  }
+}
