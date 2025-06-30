@@ -93,15 +93,7 @@ export const deleteUser = async (req, res, next) => {
 export const getLeaders = async (req, res, next) => {
   try {
     const { communityId } = req.query
-
-    if (!communityId) {
-      return res
-        .status(400)
-        .json({ message: 'El parámetro communityId es requerido' })
-    }
-
     const leaders = await getLeadersService(communityId)
-
     res.status(200).json({ data: leaders })
   } catch (error) {
     next(error)
