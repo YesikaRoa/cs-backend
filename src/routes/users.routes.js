@@ -28,13 +28,7 @@ userRoutes.get('/', getAllUsers)
 
 userRoutes.get('/:id', getUserById)
 
-userRoutes.put(
-  '/:id',
-  verifyToken,
-  uploadUsers.array('image', 1),
-  validate(updateUserSchema),
-  updateUser
-)
+userRoutes.put('/:id', verifyToken, validate(updateUserSchema), updateUser)
 
 userRoutes.delete('/:id', verifyToken, deleteUser)
 

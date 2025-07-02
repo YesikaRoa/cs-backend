@@ -137,7 +137,7 @@ export const getUserById = async (id) => {
 }
 
 // Actualizar un usuario
-export const updateUser = async (id, data, files) => {
+export const updateUser = async (id, reqBody) => {
   try {
     const numericId = validateAndConvertId(id)
 
@@ -149,18 +149,9 @@ export const updateUser = async (id, data, files) => {
       throw createError('RECORD_NOT_FOUND')
     }
 
-    if (files && files.length > 0) {
-      if (currentUser.url_image) {
-        await cloudinaryUser.deleteByUrl(currentUser.url_image)
-      }
-
-      const newImageUrl = files[0].path
-      data.url_image = newImageUrl
-    }
-
     const updatedUser = await prisma.user.update({
       where: { id: numericId },
-      data,
+      data: reqBody,
     })
 
     return updatedUser

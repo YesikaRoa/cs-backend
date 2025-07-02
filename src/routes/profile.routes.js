@@ -10,6 +10,7 @@ import {
   changePasswordSchema,
   updateProfileSchema,
 } from '../schemas/profile.schema.js'
+import { uploadUsers } from '../middlewares/upload.js'
 
 const profileRoutes = express.Router()
 
@@ -20,6 +21,7 @@ profileRoutes.get('/', verifyToken, getProfile)
 profileRoutes.put(
   '/change_password',
   verifyToken,
+
   validate(changePasswordSchema),
   changePassword
 )
@@ -28,6 +30,7 @@ profileRoutes.put(
 profileRoutes.put(
   '/',
   verifyToken,
+  uploadUsers.array('image', 1),
   validate(updateProfileSchema),
   updateProfile
 )
