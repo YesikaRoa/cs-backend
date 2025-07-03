@@ -39,6 +39,16 @@ const errorList = {
     message: 'La comunidad no existe',
     error: 'NotFound',
   },
+  NO_COMMUNITY_LEADERS_FOUND: {
+    status: 404,
+    message: 'No se encontraron líderes de comunidad',
+    error: 'NotFound',
+  },
+  INVALID_DOCUMENT_TYPE: {
+    status: 400,
+    message: 'Tipo de documento inválido',
+    error: 'BadRequest',
+  },
   DUPLICATE_RECORD: {
     status: 409,
     message: 'El registro ya existe',

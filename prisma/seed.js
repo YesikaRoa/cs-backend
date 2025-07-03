@@ -50,12 +50,6 @@ async function main() {
 
   // Obtener roles para usarlos después
   const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } })
-  const communityLeaderRole = await prisma.role.findUnique({
-    where: { name: 'Community_Leader' },
-  })
-  const streetLeaderRole = await prisma.role.findUnique({
-    where: { name: 'Street_Leader' },
-  })
 
   // 2. Insert Communities
   await prisma.community.deleteMany({})
@@ -79,50 +73,6 @@ async function main() {
       phone: '1234567890',
       rol_id: adminRole.id,
       community_id: 1,
-      is_active: true,
-    },
-    {
-      email: 'celina@example.com',
-      password: hashedPassword,
-      first_name: 'CELINA',
-      last_name: 'BERBESI',
-      cedula: '10.177.252',
-      phone: '0426-7270336',
-      rol_id: communityLeaderRole.id,
-      community_id: 1,
-      is_active: true,
-    },
-    {
-      email: '17mariacorrea@gmail.com',
-      password: hashedPassword,
-      first_name: 'MARIA',
-      last_name: 'CORREA',
-      cedula: '10.162.669',
-      phone: '0424-7427766',
-      rol_id: communityLeaderRole.id,
-      community_id: 2,
-      is_active: true,
-    },
-    {
-      email: 'luis11enero2018@gmail.com',
-      password: hashedPassword,
-      first_name: 'LUIS',
-      last_name: 'CARVAJAL',
-      cedula: '9.148.965',
-      phone: '0424-7570848',
-      rol_id: communityLeaderRole.id,
-      community_id: 3,
-      is_active: true,
-    },
-    {
-      email: 'lanegraruby24@gmail.com',
-      password: hashedPassword,
-      first_name: 'RUBY',
-      last_name: 'ORDOÑEZ',
-      cedula: '14.180.537',
-      phone: '0414-0748775',
-      rol_id: communityLeaderRole.id,
-      community_id: 4,
       is_active: true,
     },
   ]

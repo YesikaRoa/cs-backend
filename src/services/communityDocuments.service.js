@@ -1,8 +1,132 @@
 import PDFDocument from 'pdfkit'
 import { prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
-
 import path from 'path'
+
+// --- Utilidades globales centralizadas ---
+const LOGOS = {
+  residence: {
+    1: 'CONSEJO COMUNAL PIRENEOS I LOTE G.png',
+    2: 'logoLoteH.jpg',
+    3: 'logoConsejoComunalSinaral.png',
+    4: 'logoRafaelUrdaneta.jpg',
+  },
+  disincorporation: {
+    1: 'logoClapGeneral.jpg',
+    2: 'logoClapGeneral.jpg',
+    3: 'logoSinaralClap.png',
+    4: 'logoRafaelUrdaneta.jpg',
+  },
+}
+
+const CONTACTS = {
+  residence: {
+    1: {
+      email: 'CCPIRINEOSILOTEG@GMAIL.COM',
+      phones: '0426-7270336 / 0412-6832106',
+    },
+    2: {
+      email: 'CONSEJOCOMUNALLOTEHURBZUNIGA@GMAIL.COM',
+      phones: '0424-7427766',
+    },
+    3: { email: 'LUIS11ENERO2018@GMAIL.COM', phones: '0424-7570848' },
+    4: {
+      email: 'CLAPBLIBERTADORPA@GMAIL.COM',
+      instagram: '@CLAPBLIBERTADORPA',
+      phones: '0414-0748775 / 0424-7347467',
+    },
+  },
+  disincorporation: {
+    3: { email: 'luis11enero2018@gmail.com', phones: '0424-7570848' },
+    4: {
+      email: 'CLAPBLIBERTADORPA@GMAIL.COM',
+      instagram: '@CLAPBLIBERTADORPA',
+      phones: '0414-0748775 / 0424-7347467',
+    },
+  },
+}
+
+const STATIC_SIGNATURES = {
+  residence: {
+    1: [
+      {
+        name: 'JUDITH RAMÍREZ',
+        ci: 'V- 10171652',
+        role: 'V. COMITÉ ADMINISTRATIVA',
+      },
+      { name: 'MIGUEL RUEDA', ci: 'V- 11503980', role: 'V. UNIDAD EJECUTIVA' },
+      {
+        name: 'GLADYS CÁCERES',
+        ci: 'V- 3618616',
+        role: 'V. CONTRALORÍA SOCIAL',
+      },
+      {
+        name: 'OLIVERIO VARGAS',
+        ci: 'V- 4633172',
+        role: 'V. DE COMISIÓN ELECTORAL',
+      },
+    ],
+    2: [
+      {
+        name: 'GLADYS GAMBOA',
+        ci: 'V- 3429447',
+        role: 'V. COMITÉ DE ALIMENTACIÓN',
+      },
+      {
+        name: 'DANIEL CHACÓN',
+        ci: 'V- 4211215',
+        role: 'V. CONTRALORÍA SOCIAL',
+      },
+      {
+        name: 'LUIS USECHE',
+        ci: 'V- 10166595',
+        role: 'V. DE SEGURIDAD Y DEFENSA',
+      },
+      {
+        name: 'WILLIAM RODRIGUEZ',
+        ci: 'V- 9246485',
+        role: 'V. DE COMISIÓN ELECTORAL',
+      },
+      {
+        name: 'YASMIN GARCIA',
+        ci: 'V- 10145578',
+        role: 'V. DE COMISIÓN ELECTORAL',
+      },
+    ],
+    3: [{ name: 'WOLFAN MENDOZA', ci: 'V- 1113752', role: 'VOCERO' }],
+    4: [{ name: 'INGRY VIVAS', ci: 'V- 9218100', role: 'COMISIÓN ELECTORAL' }],
+  },
+  disincorporation: {
+    1: [
+      {
+        name: '________________',
+        ci: 'V-______________',
+        role: 'LIDER DE CALLE',
+      },
+    ],
+    2: [
+      {
+        name: '________________',
+        ci: 'V-______________',
+        role: 'LIDER DE CALLE',
+      },
+    ],
+    3: [
+      {
+        name: '________________',
+        ci: 'V-______________',
+        role: 'LIDER DE CALLE',
+      },
+    ],
+    4: [
+      {
+        name: '________________',
+        ci: 'V-______________',
+        role: 'LIDER DE CALLE',
+      },
+    ],
+  },
+}
 
 const translateRoleName = (roleName) => {
   const translations = {
@@ -16,6 +140,18 @@ const translateRoleName = (roleName) => {
   )
 }
 
+const getFormattedDate = () => {
+  const today = new Date()
+  return today
+    .toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    })
+    .replace(/\//g, '/')
+}
+
+// --- Función principal simplificada ---
 export const generateDocumentService = async (
   communityId,
   documentType,
@@ -24,13 +160,10 @@ export const generateDocumentService = async (
   const community = await prisma.community.findUnique({
     where: { id: communityId },
   })
+  if (!community) throw createError('COMMUNITY_NOT_FOUND')
 
-  if (!community) {
-    throw new createError('COMMUNITY_NOT_FOUND')
-  }
-
-  const leaderRoleIds = [2] // Puedes agregar más IDs si es necesario
-  const communityLeaders = await prisma.user.findMany({
+  const leaderRoleIds = [2]
+  let communityLeaders = await prisma.user.findMany({
     where: {
       is_active: true,
       rol_id: { in: leaderRoleIds },
@@ -39,17 +172,42 @@ export const generateDocumentService = async (
     select: {
       first_name: true,
       last_name: true,
-      cedula: true,
+      dni: true,
       role: { select: { name: true } },
     },
   })
 
-  // Formateo para generar firmas
-  const formattedLeaders = communityLeaders.map((user) => ({
-    name: `${user.first_name} ${user.last_name}`,
-    ci: `V- ${user.cedula}`,
-    role: translateRoleName(user.role.name),
-  }))
+  // Si es carta de desincorporación para comunidad 1 o 2, traer también el líder de comunidad 1
+  if (
+    documentType === 'disincorporation' &&
+    (communityId === 1 || communityId === 2)
+  ) {
+    communityLeaders = await prisma.user.findMany({
+      where: {
+        is_active: true,
+        rol_id: { in: leaderRoleIds },
+        community_id: 2,
+      },
+      select: {
+        first_name: true,
+        last_name: true,
+        dni: true,
+        role: { select: { name: true } },
+      },
+    })
+  }
+
+  if (!communityLeaders || communityLeaders.length === 0) {
+    throw createError('NO_COMMUNITY_LEADERS_FOUND')
+  }
+
+  const formattedLeaders = communityLeaders
+    .map((user) => ({
+      name: `${user.first_name} ${user.last_name}`,
+      ci: `V- ${user.dni}`,
+      role: translateRoleName(user.role.name),
+    }))
+    .sort((a, b) => (b.role.includes('LÍDER COMUNITARIO') ? 1 : -1))
 
   return new Promise((resolve, reject) => {
     try {
@@ -59,20 +217,10 @@ export const generateDocumentService = async (
       doc.on('data', (chunk) => buffers.push(chunk))
       doc.on('end', () => resolve(Buffer.concat(buffers)))
 
-      const today = new Date()
-      const formattedDate = today
-        .toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
-        .replace(/\//g, '/')
-
-      doc.fontSize(12).text(formattedDate, 400, 20, { align: 'right' })
+      doc.fontSize(12).text(getFormattedDate(), 400, 20, { align: 'right' })
       doc.moveDown(1)
 
       addCommunityHeader(doc, communityId, documentType, community)
-
       doc.text('', 50, 100)
       doc.moveDown(5)
 
@@ -99,27 +247,14 @@ export const generateDocumentService = async (
       doc.end()
     } catch (error) {
       console.error('Error generating PDF:', error)
+      reject(error)
     }
   })
 }
 
+// --- Header simplificado ---
 const addCommunityHeader = (doc, communityId, documentType, community) => {
-  const logosByDocumentType = {
-    residence: {
-      1: 'CONSEJO COMUNAL PIRENEOS I LOTE G.png',
-      2: 'logoLoteH.jpg',
-      3: 'logoConsejoComunalSinaral.png',
-      4: 'logoRafaelUrdaneta.jpg',
-    },
-    disincorporation: {
-      1: 'logoClapGeneral.jpg',
-      2: 'logoClapGeneral.jpg',
-      3: 'logoSinaralClap.png',
-      4: 'logoRafaelUrdaneta.jpg',
-    },
-  }
-
-  const logoFileName = logosByDocumentType[documentType]?.[communityId]
+  const logoFileName = LOGOS[documentType]?.[communityId]
   if (!logoFileName) return
 
   const logoPath = path.resolve('assets', logoFileName)
@@ -133,16 +268,15 @@ const addCommunityHeader = (doc, communityId, documentType, community) => {
   ) {
     doc.fontSize(12).text(community.name, 200, 50, { align: 'right' })
     doc.text(community.address, 92, 70, {
-      align: 'right', // Alineación derecha
-      width: 450, // Define el ancho del texto
-      lineBreak: false, // Evita saltos de línea
+      align: 'right',
+      width: 450,
+      lineBreak: false,
     })
-
     doc.text(community.rif_community, 200, 90, { align: 'right' })
   }
 }
-// Formato 1: Carta de Residencia
 
+// --- Documentos ---
 const generateResidenceDocument = (
   doc,
   community,
@@ -169,6 +303,8 @@ const generateResidenceDocument = (
   ])
 
   doc.moveDown(2)
+  doc.text('')
+
   doc
     .font('Helvetica')
     .text(
@@ -180,12 +316,12 @@ const generateResidenceDocument = (
     )
 
   doc.moveDown(2)
+  doc.text('')
   generateSignatures(doc, communityId, 'residence', leaders)
   doc.moveDown(3)
   addContactInfo(doc, communityId, 'residence')
 }
 
-// Formato 2: Constancia de Desincorporación
 const generateDisincorporationDocument = (
   doc,
   community,
@@ -198,17 +334,9 @@ const generateDisincorporationDocument = (
     .font('Helvetica-Bold')
     .text('CONSTANCIA DE DESINCORPORACIÓN', { align: 'center' })
   doc.moveDown(2)
-  doc
-  doc
-  const sresText = 'Sres: '
-  const destinatarioText = personalData.destinario
 
-  doc.fontSize(12).font('Helvetica') // texto normal
-  doc.text(sresText, { continued: true }) // continued:true para seguir en la misma línea
-
-  doc.font('Helvetica-Bold') // negrita
-  doc.text(destinatarioText, { align: 'justify' }) // el resto de la línea con negrita
-
+  doc.fontSize(12).font('Helvetica').text('Sres: ', { continued: true })
+  doc.font('Helvetica-Bold').text(personalData.destinario, { align: 'justify' })
   doc.moveDown(2)
 
   generateJustifiedTextWithBold(doc, [
@@ -231,134 +359,39 @@ const generateDisincorporationDocument = (
       bold: false,
     },
   ])
-
   doc.moveDown(2)
-  doc.text(
-    'Sin otro particular a que hacer referencia, se despiden de ustedes.',
-    { align: 'justify' }
-  )
-
+  doc.text('')
+  generateJustifiedTextWithBold(doc, [
+    {
+      text: 'Sin otro particular a que hacer referencia, se despiden de ustedes.',
+      bold: false,
+    },
+  ])
   doc.moveDown(2)
+  doc.text('')
   generateSignatures(doc, communityId, 'disincorporation', leaders)
-  doc.moveDown(2)
+  doc.moveDown(3)
   addContactInfo(doc, communityId, 'disincorporation')
 }
 
-//firmas
-
+// --- Firmas simplificadas ---
 const generateSignatures = (doc, communityId, documentType, leaders) => {
-  // Firmas fijas por comunidad y tipo de documento
-  const staticSignatures = {
-    1:
-      documentType === 'residence'
-        ? [
-            {
-              name: 'JUDITH RAMÍREZ',
-              ci: 'V- 10.171.652',
-              role: 'V. COMITÉ ADMINISTRATIVA',
-            },
-            {
-              name: 'MIGUEL RUEDA',
-              ci: 'V- 11.503.980',
-              role: 'V. UNIDAD EJECUTIVA',
-            },
-            {
-              name: 'GLADYS CÁCERES',
-              ci: 'V- 3.618.616',
-              role: 'V. CONTRALORÍA SOCIAL',
-            },
-            {
-              name: 'OLIVERIO VARGAS',
-              ci: 'V- 4.633.172',
-              role: 'V. DE COMISIÓN ELECTORAL',
-            },
-          ]
-        : [
-            {
-              name: '________________',
-              ci: 'V-______________',
-              role: 'LIDER DE CALLE',
-            },
-          ],
-    2:
-      documentType === 'residence'
-        ? [
-            {
-              name: 'GLADYS GAMBOA',
-              ci: 'V- 3.429.447',
-              role: 'V. COMITÉ DE ALIMENTACIÓN',
-            },
-            {
-              name: 'DANIEL CHACÓN',
-              ci: 'V- 4.211.215',
-              role: 'V. CONTRALORÍA SOCIAL',
-            },
-            {
-              name: 'LUIS USECHE',
-              ci: 'V- 10.166.595',
-              role: 'V. DE SEGURIDAD Y DEFENSA',
-            },
-            {
-              name: 'WILLIAM RODRIGUEZ',
-              ci: 'V- 9.246.485',
-              role: 'V. DE COMISIÓN ELECTORAL',
-            },
-            {
-              name: 'YASMIN GARCIA',
-              ci: 'V- 10.145.578',
-              role: 'V. DE COMISIÓN ELECTORAL',
-            },
-          ]
-        : [
-            {
-              name: '________________',
-              ci: 'V-______________',
-              role: 'LIDER DE CALLE',
-            },
-          ],
-    3:
-      documentType === 'residence'
-        ? [{ name: 'WOLFAN MENDOZA', ci: 'V- 11.113.752', role: 'VOCERO' }]
-        : [
-            {
-              name: '________________',
-              ci: 'V-______________',
-              role: 'LIDER DE CALLE',
-            },
-          ],
-    4:
-      documentType === 'residence'
-        ? [
-            {
-              name: 'INGRY VIVAS',
-              ci: 'V- 9.218.100',
-              role: 'COMISIÓN ELECTORAL',
-            },
-          ]
-        : [
-            {
-              name: '________________',
-              ci: 'V-______________',
-              role: 'LIDER DE CALLE',
-            },
-          ],
-  }
-
-  // Combinar firmas estáticas con las dinámicas (líderes)
-  // leaders debe ser un arreglo de objetos con { name, ci, role }
-  const signers = [
-    ...(staticSignatures[communityId] || [
-      { name: 'N/A', ci: 'N/A', role: 'N/A' },
-    ]),
-    ...leaders,
+  const staticSigns = STATIC_SIGNATURES[documentType][communityId] || [
+    { name: 'N/A', ci: 'N/A', role: 'N/A' },
   ]
+  const leadersOnly = leaders.filter((s) =>
+    s.role.includes('LÍDER COMUNITARIO')
+  )
+  const othersLeaders = leaders.filter(
+    (s) => !s.role.includes('LÍDER COMUNITARIO')
+  )
+  const signers = [...leadersOnly, ...staticSigns, ...othersLeaders]
 
-  // Configuración para la posición de las firmas
-  let initialY = 470
-  let columnWidth = 200
-  let rowHeight = 90
-  let maxColumns = 4
-
+  // Layout dinámico según cantidad de firmas
+  let initialY = 470,
+    columnWidth = 200,
+    rowHeight = 90,
+    maxColumns = 4
   if (
     communityId === 2 ||
     (communityId === 1 && documentType === 'residence')
@@ -374,114 +407,58 @@ const generateSignatures = (doc, communityId, documentType, leaders) => {
     initialY = 550
   }
 
-  // Dibujar firmas en el PDF
   signers.forEach((signer, index) => {
-    const xPosition = 50 + (index % maxColumns) * columnWidth
-    const yPosition = initialY + Math.floor(index / maxColumns) * rowHeight
-
-    doc.font('Helvetica').text('________________', xPosition, yPosition)
-
-    if (signer.name !== '________________') {
-      doc.font('Helvetica-Bold').text(signer.name, xPosition, yPosition + 20)
-    } else {
-      doc.font('Helvetica').text(signer.name, xPosition, yPosition + 20)
-    }
-
-    if (signer.ci !== 'V-______________') {
-      doc.font('Helvetica-Bold').text(signer.ci, xPosition, yPosition + 40)
-    } else {
-      doc.font('Helvetica').text(signer.ci, xPosition, yPosition + 40)
-    }
-
-    doc.font('Helvetica-Bold').text(signer.role, xPosition, yPosition + 60)
+    const x = 50 + (index % maxColumns) * columnWidth
+    const y = initialY + Math.floor(index / maxColumns) * rowHeight
+    doc.font('Helvetica').text('________________', x, y)
+    doc
+      .font(signer.name !== '________________' ? 'Helvetica-Bold' : 'Helvetica')
+      .text(signer.name, x, y + 20)
+    doc
+      .font(signer.ci !== 'V-______________' ? 'Helvetica-Bold' : 'Helvetica')
+      .text(signer.ci, x, y + 40)
+    doc.font('Helvetica-Bold').text(signer.role, x, y + 60)
   })
 }
 
-//contacto
+// --- Contacto simplificado ---
 const addContactInfo = (doc, communityId, documentType) => {
-  const contactsByType = {
-    residence: {
-      1: {
-        email: 'CCPIRINEOSILOTEG@GMAIL.COM',
-        phones: '0426-7270336 / 0412-6832106',
-      },
-      2: {
-        email: 'CONSEJOCOMUNALLOTEHURBZUNIGA@GMAIL.COM',
-        phones: '0424-7427766',
-      },
-      3: {
-        email: 'LUIS11ENERO2018@GMAIL.COM',
-        phones: '0424-7570848',
-      },
-      4: {
-        email: 'CLAPBLIBERTADORPA@GMAIL.COM',
-        instagram: '@CLAPBLIBERTADORPA',
-        phones: '0414-0748775 / 0424-7347467',
-      },
-    },
-    disincorporation: {
-      3: {
-        email: 'luis11enero2018@gmail.com',
-        phones: '0424-7570848',
-      },
-      4: {
-        email: 'CLAPBLIBERTADORPA@GMAIL.COM',
-        instagram: '@CLAPBLIBERTADORPA',
-        phones: '0414-0748775 / 0424-7347467',
-      },
-    },
-  }
+  const contactInfo = CONTACTS[documentType]?.[communityId]
+  if (!contactInfo) return
 
-  const contacts = contactsByType[documentType] || {}
-  const contactInfo = contacts[communityId]
-
-  if (!contactInfo) {
-    return // No mostrar nada si no hay datos de contacto
-  }
-
-  const currentY = doc.y // Posición actual del cursor
-  const remainingHeight = doc.page.height - currentY - doc.page.margins.bottom // Espacio disponible
-
-  const estimatedHeight = 60 // Estimación del espacio requerido para la información de contacto
-
-  // Si no hay espacio suficiente, ajusta la posición
-  if (remainingHeight < estimatedHeight) {
-    doc.moveDown(1) // Agregar espacio o ajustar el diseño
-  }
+  const currentY = doc.y
+  const remainingHeight = doc.page.height - currentY - doc.page.margins.bottom
+  if (remainingHeight < 60) doc.moveDown(1)
 
   doc.fontSize(10).font('Helvetica').fillColor('black')
-  const pageWidth = 595.28 // Tamaño de la página
-  const margin = 50 // Márgenes
-  const contentWidth = pageWidth - margin * 2
+  const margin = 50,
+    contentWidth = 595.28 - margin * 2
 
-  if (contactInfo.email) {
+  if (contactInfo.email)
     doc.text(`CORREO: ${contactInfo.email}`, margin, null, {
       width: contentWidth,
       align: 'center',
       underline: true,
     })
-  }
-  if (contactInfo.instagram) {
+  if (contactInfo.instagram)
     doc.text(`Instagram: ${contactInfo.instagram}`, margin, null, {
       width: contentWidth,
       align: 'center',
       underline: true,
     })
-  }
-  if (contactInfo.phones) {
+  if (contactInfo.phones)
     doc.text(`Teléfonos: ${contactInfo.phones}`, margin, null, {
       width: contentWidth,
       align: 'center',
       underline: true,
     })
-  }
 }
 
+// --- Utilidad para texto con negrita ---
 const generateJustifiedTextWithBold = (doc, textSegments) => {
   textSegments.forEach(({ text, bold }) => {
     doc
       .font(bold ? 'Helvetica-Bold' : 'Helvetica')
       .text(text, { continued: true })
   })
-  doc.text('', { align: 'justify' })
 }
