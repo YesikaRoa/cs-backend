@@ -11,7 +11,7 @@ export function setupSwagger(app) {
     swaggerUi.setup(swaggerDocument, {
       swaggerOptions: {
         url: `http://localhost:${
-          process.env.PORT || 3002
+          process.env.PORT || 3004
         }/api/docs/swagger.yaml`,
       },
     })

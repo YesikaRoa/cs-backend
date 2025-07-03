@@ -52,10 +52,16 @@ async function main() {
   const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } })
 
   // 2. Insert Communities
-  await prisma.community.deleteMany({})
+  // await prisma.community.deleteMany({})
   for (const community of communities) {
-    await prisma.community.create({
-      data: community,
+    await prisma.community.upsert({
+      where: { id: community.id },
+      update: {
+        name: community.name,
+        description: community.description,
+        address: community.address,
+      },
+      create: community,
     })
   }
 

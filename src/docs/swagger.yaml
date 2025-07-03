@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: Documentación de la API REST con Swagger
 servers:
-  - url: http://localhost:3002/api
+  - url: http://localhost:3004/api
 
 tags:
   - name: Auth
@@ -303,7 +303,58 @@ paths:
           description: No autorizado
         '404':
           description: Post no encontrado
-  /communityInfo:
+  /posts/{id}/status:
+    put:
+      summary: Cambiar el estado de una publicación
+      tags: [Posts]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID del post a actualizar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [published, draft]
+                  description: Nuevo estado de la publicación
+              example:
+                status: published
+      responses:
+        '200':
+          description: Estado de la publicación actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Estado de la publicación actualizado correctamente
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: No autorizado
+        '403':
+          description: No tienes permiso para cambiar el estado
+        '404':
+          description: Publicación no encontrada
+  /community_information:
     get:
       summary: Obtener toda la información de la comunidad
       tags: [Community]
@@ -330,7 +381,7 @@ paths:
       responses:
         '201':
           description: Información creada exitosamente
-  /communityInfo/{id}:
+  /community_information/{id}:
     get:
       summary: Obtener información por ID
       tags: [Community]
@@ -586,7 +637,7 @@ paths:
           description: Usuario no encontrado
         401:
           description: No autorizado
-  /community:
+  /communities:
     get:
       summary: Obtener nombres de todas las comunidades
       tags: [Community]

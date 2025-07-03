@@ -6,9 +6,9 @@ import path from 'path'
 // --- Utilidades globales centralizadas ---
 const LOGOS = {
   residence: {
-    1: 'CONSEJO COMUNAL PIRENEOS I LOTE G.png',
+    1: 'logoPirineosILoteG.png',
     2: 'logoLoteH.jpg',
-    3: 'logoConsejoComunalSinaral.png',
+    3: 'logoSinaral.png',
     4: 'logoRafaelUrdaneta.jpg',
   },
   disincorporation: {
@@ -303,8 +303,6 @@ const generateResidenceDocument = (
   ])
 
   doc.moveDown(2)
-  doc.text('')
-
   doc
     .font('Helvetica')
     .text(
@@ -316,7 +314,6 @@ const generateResidenceDocument = (
     )
 
   doc.moveDown(2)
-  doc.text('')
   generateSignatures(doc, communityId, 'residence', leaders)
   doc.moveDown(3)
   addContactInfo(doc, communityId, 'residence')
@@ -359,18 +356,15 @@ const generateDisincorporationDocument = (
       bold: false,
     },
   ])
+
   doc.moveDown(2)
-  doc.text('')
-  generateJustifiedTextWithBold(doc, [
-    {
-      text: 'Sin otro particular a que hacer referencia, se despiden de ustedes.',
-      bold: false,
-    },
-  ])
+  doc.text(
+    'Sin otro particular a que hacer referencia, se despiden de ustedes.',
+    { align: 'justify' }
+  )
   doc.moveDown(2)
-  doc.text('')
   generateSignatures(doc, communityId, 'disincorporation', leaders)
-  doc.moveDown(3)
+  doc.moveDown(2)
   addContactInfo(doc, communityId, 'disincorporation')
 }
 
@@ -461,4 +455,5 @@ const generateJustifiedTextWithBold = (doc, textSegments) => {
       .font(bold ? 'Helvetica-Bold' : 'Helvetica')
       .text(text, { continued: true })
   })
+  doc.text('', { align: 'justify' })
 }

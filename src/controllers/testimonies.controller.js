@@ -20,9 +20,6 @@ export const getTestimonies = async (req, res, next) => {
 export const getTestimoniesByCommunityId = async (req, res, next) => {
   const { searchBy } = req.query
 
-  console.log('Search By:', searchBy)
-  console.log('Community ID:', req.params.id)
-
   try {
     const testimonies = await getTestimoniesByCommunityIdService(
       req.params.id,
@@ -37,8 +34,7 @@ export const getTestimoniesByCommunityId = async (req, res, next) => {
 // Crear un nuevo testimonio
 export const createTestimony = async (req, res, next) => {
   try {
-    const { name, comment } = req.body
-    const community_id = req.user.community_id || null
+    const { name, comment, community_id } = req.body
 
     await createTestimonyService({
       name,
