@@ -186,7 +186,7 @@ export const generateDocumentService = async (
       where: {
         is_active: true,
         rol_id: { in: leaderRoleIds },
-        community_id: 2,
+        community_id: communityId,
       },
       select: {
         first_name: true,
@@ -348,7 +348,7 @@ const generateDisincorporationDocument = (
     },
     { text: `${personalData.fullName}`, bold: true },
     {
-      text: `con cédula de identidad N.- V-${personalData.idNumber},`,
+      text: ` con cédula de identidad N.- V-${personalData.idNumber},`,
       bold: false,
     },
     {
