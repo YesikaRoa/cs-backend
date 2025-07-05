@@ -728,6 +728,53 @@ paths:
         401:
           description: No autorizado
 
+  /leaders:
+    get:
+      summary: Obtener líderes comunitarios
+      tags: [Users]
+      description: >-
+        Retorna los líderes comunitarios (Community_Leader y Street_Leader). Si se envía el parámetro opcional `communityId`, filtra los líderes de esa comunidad; si no, retorna todos los líderes.
+      parameters:
+        - in: query
+          name: communityId
+          schema:
+            type: integer
+          required: false
+          description: ID de la comunidad para filtrar líderes
+      responses:
+        200:
+          description: Lista de líderes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        first_name:
+                          type: string
+                        last_name:
+                          type: string
+                        url_image:
+                          type: string
+                        role:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                        community:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+        400:
+          description: communityId inválido
+        500:
+          description: Error en el servidor
+
 components:
   securitySchemes:
     bearerAuth:

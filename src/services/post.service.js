@@ -47,14 +47,28 @@ export const createPost = async (postData) => {
 }
 
 //Obtiene todos los posts
-export const getPosts = async () => {
+export const getPosts = async (communityId) => {
   try {
+    let where = {
+      role: {
+        name: {
+          in: ['Community_Leader', 'Street_Leader'],
+        },
+      },
+    }
+
+    if (communityId !== null && communityId !== undefined) {
+      const numericCommunityId = validateAndConvertId(communityId)
+      where.community_id = numericCommunityId
+    }
+
     const posts = await prisma.post.findMany({
       include: {
         user: {
           select: {
             first_name: true,
             last_name: true,
+            url_image: true,
           },
         },
         category: { select: { name: true } },
