@@ -17,6 +17,7 @@ export const createUser = async (req, res, next) => {
       phone,
       rol_id,
       community_id,
+      dni,
     } = req.body
     const files = req.files || []
 
@@ -28,6 +29,7 @@ export const createUser = async (req, res, next) => {
       phone,
       rol_id,
       community_id,
+      dni,
       files,
     }
 

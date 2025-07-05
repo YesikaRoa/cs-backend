@@ -65,32 +65,6 @@ async function main() {
     })
   }
 
-  // // Hashear la contraseña una sola vez
-  // const hashedPassword = await BcryptAdapter.hash('123456')
-
-  // // 3. Insertar usuarios con los roles correctos y emails únicos
-  // const users = [
-  //   {
-  //     email: 'admin@example.com',
-  //     password: hashedPassword,
-  //     first_name: 'Admin',
-  //     last_name: 'User',
-  //     cedula: '12345678',
-  //     phone: '1234567890',
-  //     rol_id: adminRole.id,
-  //     community_id: 1,
-  //     is_active: true,
-  //   },
-  // ]
-
-  // for (const user of users) {
-  //   await prisma.user.upsert({
-  //     where: { email: user.email },
-  //     update: {},
-  //     create: user,
-  //   })
-  // }
-
   // 4. Insert Post Categories
   for (const categoryName of Object.values(CategoryType)) {
     await prisma.postCategory.upsert({

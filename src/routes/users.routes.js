@@ -24,9 +24,9 @@ userRoutes.post(
   createUser
 )
 
-userRoutes.get('/', getAllUsers)
+userRoutes.get('/', verifyToken, getAllUsers)
 
-userRoutes.get('/:id', getUserById)
+userRoutes.get('/:id', verifyToken, getUserById)
 
 userRoutes.put('/:id', verifyToken, validate(updateUserSchema), updateUser)
 

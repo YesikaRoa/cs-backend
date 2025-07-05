@@ -17,6 +17,7 @@ export const createUser = async (reqBody) => {
       phone,
       rol_id,
       community_id,
+      dni,
       files,
     } = reqBody
 
@@ -31,6 +32,7 @@ export const createUser = async (reqBody) => {
       rol_id: parseInt(rol_id),
       community_id: parseInt(community_id),
       is_active: true,
+      dni,
       url_image: '',
     }
 
@@ -68,6 +70,7 @@ export const getAllUsers = async () => {
       rol_id: true,
       community_id: true,
       url_image: true,
+      dni: true,
       is_active: true,
       role: {
         select: {
@@ -102,6 +105,7 @@ export const getUserById = async (id) => {
         phone: true,
         rol_id: true,
         community_id: true,
+        dni: true,
         url_image: true,
         is_active: true,
         role: {
