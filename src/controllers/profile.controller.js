@@ -1,7 +1,7 @@
 import {
   getProfile as getProfileService,
   changePassword as changePasswordService,
-  updatePofile as updatePofileService,
+  updatePofile as updateProfileService,
 } from '../services/profile.service.js'
 
 export const getProfile = async (req, res, next) => {
@@ -29,18 +29,8 @@ export const changePassword = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { first_name, last_name, email, phone } = req.body
-
     const files = req.files || []
-
-    const data = {
-      first_name,
-      last_name,
-      email,
-      phone,
-    }
-
-    await updatePofileService(req.user.id, data, files)
+    await updateProfileService(req.user.id, req.body, files)
     res.status(200).json({ message: 'Perfil actualizado correctamente' })
   } catch (error) {
     next(error)

@@ -15,6 +15,7 @@ export const getProfile = async (userId) => {
         last_name: true,
         email: true,
         phone: true,
+        url_image: true,
         role: {
           select: {
             id: true,
@@ -63,14 +64,6 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
 export const updatePofile = async (id, data, files) => {
   try {
     const numericId = validateAndConvertId(id)
-
-    const currentUser = await prisma.user.findUnique({
-      where: { id: numericId },
-    })
-
-    if (!currentUser) {
-      throw createError('RECORD_NOT_FOUND')
-    }
 
     if (files && files.length > 0) {
       if (currentUser.url_image) {
