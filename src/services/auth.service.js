@@ -14,6 +14,7 @@ export const registerUser = async (reqBody) => {
     phone,
     rol_id,
     community_id,
+    dni,
   } = reqBody
 
   const userExists = await prisma.user.findUnique({
@@ -33,6 +34,7 @@ export const registerUser = async (reqBody) => {
       phone,
       rol_id,
       community_id,
+      dni,
     },
   })
 

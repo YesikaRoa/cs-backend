@@ -1,42 +1,40 @@
 import { PrismaClient, RoleType, CategoryType } from '@prisma/client'
-
 import { BcryptAdapter } from '../src/adapters/bcryptAdapter.js'
+
 const prisma = new PrismaClient()
+
 const communities = [
   {
     id: 1,
-    name: 'Lote G Pirineos I',
-    description:
-      'Consejo comunal enfocado en el fortalecimiento de la seguridad y la calidad de vida de sus habitantes',
-    address: 'Desde Lote G, hasta antes de la calle del hambre',
+    name: 'CONSEJO COMUNAL PIRINEOS I LOTE G',
+    description: 'Consejo comunal enfocado en la fortaleza...',
+    address: 'CALLE PRINCIPAL URB PIRINEOS I LOTE G  U-CCO-18-08-02-028726',
+    name_clap: 'CLAP MARISCAL DE AYACUCHO DE PIRINEOS 1, LOTE H Y G',
+    rif_community: 'RIF C- 299741680',
   },
   {
     id: 2,
-    name: 'Lote H Rio Zuñiga',
-    description:
-      'Consejo comunal que trabaja activamente en la conservación ambiental y la mejora de espacios públicos',
-    address: 'Calle del hambre',
+    name: 'CONSEJO COMUNAL LOTE H-URB. RIO ZUÑIGA',
+    description: 'Consejo comunal que trabaja activamente...',
+    address: 'CALLE LOTE H SECTOR PIRINEOS I U-CCO-18-08-02-021335',
+    name_clap: 'CLAP MARISCAL DE AYACUCHO DE PIRINEOS 1, LOTE H Y G',
+    rif_community: 'RIF C- 316356205',
   },
   {
     id: 3,
-    name: 'Libertador Cineral',
-    description:
-      'Consejo comunal conocido por su espíritu colaborativo y sus iniciativas en educación y desarrollo social.',
-    address: 'Desde la sede de los Bomberos, hasta la calle 2',
+    name: 'CONSEJO COMUNAL LIBERTADOR SINERAL',
+    description: 'Consejo comunal conocido por su espíritu colaborativo...',
+    address: 'PIRINEOS I LOTE D Y E U-CCO-18-08-02-006545',
+    name_clap: 'CLAP LIBERTADOR PARTE BAJA',
+    rif_community: 'RIF J- 29974178-7',
   },
   {
     id: 4,
-    name: 'Rafael Urdaneta',
-    description:
-      'Consejo comunal que fomenta la unión vecinal y proyectos culturales en la parroquia Pedro María Morantes.',
-    address: 'Desde la licorería Isabelita, hasta Lote G',
-  },
-  {
-    id: 5,
-    name: 'Libertador',
-    description:
-      'Consejo comunal comprometido con el bienestar vecinal, destacada por sus actividades recreativas y programas comunitarios.',
-    address: 'Desde la calle 2, hasta la licorería Isabelita',
+    name: 'CONSEJO COMUNAL RAFAEL URDANETA',
+    description: 'Consejo comunal que fomenta la unión vecinal...',
+    address: 'BARRIO LIBERTADOR PARTE ALTA U-CCO-18-08-02-023981',
+    name_clap: 'CLAP RAFAEL URDANETA DEL BARRIO LIBERTADOR PARTE ALTA',
+    rif_community: 'RIF C- 500455747',
   },
 ]
 
@@ -50,7 +48,11 @@ async function main() {
     })
   }
 
+  // Obtener roles para usarlos después
+  const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } })
+
   // 2. Insert Communities
+  // await prisma.community.deleteMany({})
   for (const community of communities) {
     await prisma.community.upsert({
       where: { id: community.id },
@@ -63,7 +65,33 @@ async function main() {
     })
   }
 
-  // 3. Insert Post Categories
+  // // Hashear la contraseña una sola vez
+  // const hashedPassword = await BcryptAdapter.hash('123456')
+
+  // // 3. Insertar usuarios con los roles correctos y emails únicos
+  // const users = [
+  //   {
+  //     email: 'admin@example.com',
+  //     password: hashedPassword,
+  //     first_name: 'Admin',
+  //     last_name: 'User',
+  //     cedula: '12345678',
+  //     phone: '1234567890',
+  //     rol_id: adminRole.id,
+  //     community_id: 1,
+  //     is_active: true,
+  //   },
+  // ]
+
+  // for (const user of users) {
+  //   await prisma.user.upsert({
+  //     where: { email: user.email },
+  //     update: {},
+  //     create: user,
+  //   })
+  // }
+
+  // 4. Insert Post Categories
   for (const categoryName of Object.values(CategoryType)) {
     await prisma.postCategory.upsert({
       where: { name: categoryName },
@@ -72,7 +100,7 @@ async function main() {
     })
   }
 
-  // 4. Optionally insert permissions and assign to roles
+  // 5. Insert permissions and assign to roles
   const permissions = [
     'create_post',
     'edit_post',
@@ -91,7 +119,6 @@ async function main() {
   }
 
   // Assign all permissions to Admin role
-  const adminRole = await prisma.role.findUnique({ where: { name: 'Admin' } })
   for (const name of permissions) {
     const permission = await prisma.permission.findUnique({ where: { name } })
     await prisma.rolePermission.upsert({
@@ -120,6 +147,7 @@ async function main() {
       password: hashedPassword,
       first_name: 'Admin',
       last_name: 'User',
+      dni: '12345678',
       community: {
         connect: { id: 1 },
       },
@@ -131,43 +159,58 @@ async function main() {
     },
   })
 
+  // 6. Insert community info
   const infoEntries = [
     {
       title: 'LOCATION',
       value: 'Barrio Libertador, Calle 4',
+      community_id: 1,
     },
     {
       title: 'PHONE_NUMBER',
       value: '02123462092',
+      community_id: 1,
     },
     {
       title: 'EMAIL',
       value: 'email@email.com',
+      community_id: 1,
     },
     {
       title: 'MISSION',
       value:
         'Promover la participación activa de la comunidad en la gestión y solución de sus necesidades, fomentando el desarrollo social, económico y cultural con base en la organización popular y la corresponsabilidad.',
+      community_id: 1,
     },
     {
       title: 'VISION',
       value:
         'Ser una comunidad organizada, solidaria y autosustentable, capaz de mejorar continuamente su calidad de vida mediante la unión, la planificación y el compromiso colectivo.',
+      community_id: 1,
     },
     {
       title: 'ABOUT',
       value:
         'El Consejo Comunal Libertador es un espacio de organización y participación ciudadana que busca mejorar la calidad de vida de sus habitantes a través de la gestión colectiva y la articulación de esfuerzos en pro del bienestar común.',
+      community_id: 1,
     },
   ]
 
   for (const info of infoEntries) {
     await prisma.communityInformation.upsert({
-      where: { title: info.title },
-      update: { value: info.value },
+      where: {
+        title_community_id: {
+          title: info.title,
+          community_id: info.community_id,
+        },
+      },
+      update: {
+        value: info.value,
+      },
       create: {
         title: info.title,
         value: info.value,
+        community_id: info.community_id,
       },
     })
   }

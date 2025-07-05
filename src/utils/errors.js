@@ -44,10 +44,25 @@ const errorList = {
     message: 'La comunidad no existe',
     error: 'NotFound',
   },
+  NO_COMMUNITY_LEADERS_FOUND: {
+    status: 404,
+    message: 'No se encontraron líderes de comunidad',
+    error: 'NotFound',
+  },
+  INVALID_DOCUMENT_TYPE: {
+    status: 400,
+    message: 'Tipo de documento inválido',
+    error: 'BadRequest',
+  },
   DUPLICATE_RECORD: {
     status: 409,
     message: 'El registro ya existe',
     error: 'DuplicateRecord',
+  },
+  INVALID_DOCUMENT_TYP: {
+    status: 401,
+    message: 'Documento invalido',
+    error: 'InvalidDocument',
   },
   INTERNAL_SERVER_ERROR: {
     status: 500,
@@ -57,6 +72,16 @@ const errorList = {
   TOO_MANY_IMAGES: {
     status: 400,
     message: 'Solo se permiten hasta 3 imágenes por post.',
+    error: 'BadRequest',
+  },
+  INVALID_DOCUMENT_TYPE: {
+    status: 400,
+    message: 'Tipo de documento inválido',
+    error: 'BadRequest',
+  },
+  ERROR_PDF: {
+    status: 400,
+    message: 'Error al procesar el PDF',
     error: 'BadRequest',
   },
 }
