@@ -65,31 +65,31 @@ async function main() {
     })
   }
 
-  // Hashear la contraseña una sola vez
-  const hashedPassword = await BcryptAdapter.hash('123456')
+  // // Hashear la contraseña una sola vez
+  // const hashedPassword = await BcryptAdapter.hash('123456')
 
-  // 3. Insertar usuarios con los roles correctos y emails únicos
-  const users = [
-    {
-      email: 'admin@example.com',
-      password: hashedPassword,
-      first_name: 'Admin',
-      last_name: 'User',
-      cedula: '12345678',
-      phone: '1234567890',
-      rol_id: adminRole.id,
-      community_id: 1,
-      is_active: true,
-    },
-  ]
+  // // 3. Insertar usuarios con los roles correctos y emails únicos
+  // const users = [
+  //   {
+  //     email: 'admin@example.com',
+  //     password: hashedPassword,
+  //     first_name: 'Admin',
+  //     last_name: 'User',
+  //     cedula: '12345678',
+  //     phone: '1234567890',
+  //     rol_id: adminRole.id,
+  //     community_id: 1,
+  //     is_active: true,
+  //   },
+  // ]
 
-  for (const user of users) {
-    await prisma.user.upsert({
-      where: { email: user.email },
-      update: {},
-      create: user,
-    })
-  }
+  // for (const user of users) {
+  //   await prisma.user.upsert({
+  //     where: { email: user.email },
+  //     update: {},
+  //     create: user,
+  //   })
+  // }
 
   // 4. Insert Post Categories
   for (const categoryName of Object.values(CategoryType)) {
@@ -135,6 +135,29 @@ async function main() {
       },
     })
   }
+
+  // 5. Optionally insert a first admin user
+  const hashedPassword = await BcryptAdapter.hash('abc123')
+
+  await prisma.user.upsert({
+    where: { email: 'serviciocomunitario599@gmail.com' },
+    update: {},
+    create: {
+      email: 'serviciocomunitario599@gmail.com',
+      password: hashedPassword,
+      first_name: 'Admin',
+      last_name: 'User',
+      dni: '12345678',
+      community: {
+        connect: { id: 1 },
+      },
+      role: {
+        connect: { id: adminRole.id },
+      },
+      url_image:
+        'https://gravatar.com/avatar/c51e1cf841e009eec919ca2e1f7ed7a8?s=400&d=robohash&r=x',
+    },
+  })
 
   // 6. Insert community info
   const infoEntries = [

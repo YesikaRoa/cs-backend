@@ -11,16 +11,19 @@ model User {
   id           Int       @id @default(autoincrement())
   email        String    @unique
   password     String
-  createdAt    DateTime  @default(now())
-  community_id Int       @default(1)
   first_name   String    @default("Unknown") @db.VarChar(50)
-  is_active    Boolean   @default(true)
   last_name    String    @default("Unknown") @db.VarChar(50)
+  is_active    Boolean   @default(true)
+  community_id Int       @default(1)
   dni          String    @unique @db.VarChar(15)
   phone        String?   @unique @db.VarChar(20)
   rol_id       Int       @default(1)
-  updatedAt    DateTime  @default(now())
   last_login   DateTime?
+  url_image    String?   @db.VarChar(130)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now())
+
+  // Relaciones
   posts        Post[]
   community    Community @relation(fields: [community_id], references: [id], onDelete: Cascade)
   role         Role      @relation(fields: [rol_id], references: [id])

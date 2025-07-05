@@ -1,7 +1,12 @@
 const errorList = {
   EMAIL_IN_USE: {
     status: 400,
-    message: 'El correo ya está en uso',
+    message: 'El correo electrónico ya está en uso',
+    error: 'BadRequest',
+  },
+  EMAIL_NOT_FOUND: {
+    status: 400,
+    message: 'El correo electrónico no se encuentra registrado',
     error: 'BadRequest',
   },
   INVALID_CREDENTIALS: {

@@ -95,10 +95,11 @@ paths:
       security:
         - bearerAuth: []
       requestBody:
-        description: Datos a actualizar en el perfil. Solo se permiten actualizar first_name, last_name, email y phone.
+        description: >-
+          Datos a actualizar en el perfil. Se pueden actualizar first_name, last_name, email, phone y opcionalmente subir una imagen de perfil (campo image).
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -115,6 +116,10 @@ paths:
                 phone:
                   type: string
                   description: Número de teléfono.
+                image:
+                  type: string
+                  format: binary
+                  description: Imagen de perfil (opcional).
               example:
                 first_name: Milton
                 last_name: López
@@ -131,35 +136,14 @@ paths:
                   message:
                     type: string
                     example: 'Perfil actualizado correctamente'
-                  user:
-                    type: object
-                    properties:
-                      first_name:
-                        type: string
-                      last_name:
-                        type: string
-                      email:
-                        type: string
-                      phone:
-                        type: string
-                      role:
-                        type: object
-                        properties:
-                          name:
-                            type: string
-                      community:
-                        type: object
-                        properties:
-                          name:
-                            type: string
-                          address:
-                            type: string
         '400':
           description: Datos inválidos.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: No autorizado (token faltante o inválido)
   /profile/change_password:
     put:
       summary: Cambiar la contraseña del usuario autenticado

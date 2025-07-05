@@ -1,4 +1,6 @@
 import { BcryptAdapter } from '../adapters/bcryptAdapter.js'
+import { NodemailerAdapter } from '../adapters/email/NodemailerAdapter.js'
+
 import jwt from 'jsonwebtoken'
 import { prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
@@ -12,6 +14,7 @@ export const registerUser = async (reqBody) => {
     phone,
     rol_id,
     community_id,
+    dni,
   } = reqBody
 
   const userExists = await prisma.user.findUnique({
@@ -31,6 +34,7 @@ export const registerUser = async (reqBody) => {
       phone,
       rol_id,
       community_id,
+      dni,
     },
   })
 
@@ -47,8 +51,18 @@ export const registerUser = async (reqBody) => {
 
 export const loginUser = async ({ email, password }) => {
   const user = await prisma.user.findUnique({
+    select: {
+      id: true,
+      email: true,
+      first_name: true,
+      last_name: true,
+      url_image: true,
+      community_id: true,
+      rol_id: true,
+      password: true,
+      role: { select: { name: true } },
+    },
     where: { email },
-    include: { role: true },
   })
 
   const isValid = user && (await BcryptAdapter.compare(password, user.password))
@@ -57,7 +71,7 @@ export const loginUser = async ({ email, password }) => {
   const token = jwt.sign(
     {
       id: user.id,
-      email,
+      email: user.email,
       community_id: user.community_id,
       rol_id: user.rol_id,
       rol_name: user.role.name,
@@ -74,7 +88,55 @@ export const loginUser = async ({ email, password }) => {
 
   return {
     token,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    url_image: user.url_image,
   }
+}
+
+export const recoverPassword = async ({ email }) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } })
+
+    if (!user) throw createError('EMAIL_NOT_FOUND')
+
+    const newPassword = generateRandomPassword()
+    const hashedPassword = await BcryptAdapter.hash(newPassword)
+
+    await prisma.user.update({
+      where: { email: user.email },
+      data: { password: hashedPassword },
+    })
+
+    const emailService = new NodemailerAdapter()
+    const data = {
+      to: email,
+      subject: 'Servicio de Recuperación de Contraseña - Consejo Comunal',
+      html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <p>Hola ${user.first_name},</p>
+        <p>Tu contraseña ha sido actualizada correctamente.</p>
+        <p><strong>Nueva contraseña:</strong> <span style="color: #007BFF;">${newPassword}</span></p>
+        <p>Por seguridad, te recomendamos cambiar esta contraseña tan pronto inicies sesión.</p>
+        <hr/>
+        <p style="font-size: 12px; color: #999;">Este correo fue generado automáticamente. Por favor, no respondas.</p>
+      </div>
+    `,
+    }
+
+    await emailService.sendEmail(data)
+  } catch (error) {
+    throw error
+  }
+}
+
+const generateRandomPassword = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let password = ''
+  for (let i = 0; i < 6; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return password
 }
 
 export const getCurrentDate = async () => {
