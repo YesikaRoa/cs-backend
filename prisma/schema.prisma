@@ -15,7 +15,7 @@ model User {
   last_name    String    @default("Unknown") @db.VarChar(50)
   is_active    Boolean   @default(true)
   community_id Int       @default(1)
-  dni          String    @unique @db.VarChar(15)
+  dni          String?    @unique @db.VarChar(15)
   phone        String?   @unique @db.VarChar(20)
   rol_id       Int       @default(1)
   last_login   DateTime?
