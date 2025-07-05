@@ -65,6 +65,14 @@ export const updatePofile = async (id, data, files) => {
   try {
     const numericId = validateAndConvertId(id)
 
+    const currentUser = await prisma.user.findUnique({
+      where: { id: numericId },
+    })
+
+    if (!currentUser) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+
     if (files && files.length > 0) {
       if (currentUser.url_image) {
         await cloudinaryUser.deleteByUrl(currentUser.url_image)
