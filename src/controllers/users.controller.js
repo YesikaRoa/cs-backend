@@ -61,19 +61,10 @@ export const getUserById = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
-    const { first_name, last_name, email, phone } = req.body
-
-    const files = req.files || []
-
-    const data = {
-      first_name,
-      last_name,
-      email,
-      phone,
-    }
-
-    await updateUserService(req.params.id, data, files)
-    res.status(200).json({ message: 'Usuario actualizado con éxito' })
+    await updateUserService(req.params.id, req.body)
+    res.status(200).json({
+      message: 'Usuario actualizado con éxito',
+    })
   } catch (error) {
     next(error)
   }
