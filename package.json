@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "seed": "node prisma/seed.js",
-    "postinstall": "npx prisma migrate resolve --applied 20250620211825_add_cedula_to_user && npx prisma migrate resolve --applied 20250702224254_rename_cedula_to_dni && npx prisma migrate deploy",
+    "postinstall": "node src/scripts/postinstall.js",
     "dev": "cross-env NODE_ENV=local nodemon src/index.js",
     "dev:remote": "cross-env NODE_ENV=development nodemon src/index.js",
     "start": "cross-env NODE_ENV=production node src/index.js",
