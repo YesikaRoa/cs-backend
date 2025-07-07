@@ -6,8 +6,9 @@ import {
 
 export const getCommunityInfo = async (req, res, next) => {
   try {
-    const info = await getAllCommunityInfoService()
-    res.status(200).json({ status: 200, data: info })
+    const { communityId } = req.query
+    const info = await getAllCommunityInfoService(communityId)
+    res.status(200).json({ data: info })
   } catch (error) {
     next(error)
   }
