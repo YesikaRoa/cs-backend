@@ -2,9 +2,17 @@ import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 
 // Obtener toda la información de comunidades
-export const getAllInfo = async () => {
+export const getAllInfo = async (communityId) => {
   try {
+    let where = {}
+
+    if (communityId !== null && communityId !== undefined) {
+      const numericCommunityId = Number(communityId)
+      where.community_id = numericCommunityId
+    }
+
     const info = await prisma.communityInformation.findMany({
+      where,
       select: {
         id: true,
         title: true,

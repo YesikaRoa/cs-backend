@@ -12,8 +12,17 @@ export const createTestimony = async (reqBody) => {
 }
 
 // Obtener todos los testimonios
-export const getTestimonies = async () => {
+
+export const getTestimonies = async (communityId) => {
+  let where = {}
+
+  if (communityId !== null && communityId !== undefined) {
+    const numericCommunityId = validateAndConvertId(communityId)
+    where.community_id = numericCommunityId
+  }
+
   const testimonies = await prisma.testimony.findMany({
+    where,
     select: {
       id: true,
       name: true,
