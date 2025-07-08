@@ -59,8 +59,17 @@ export const createUser = async (reqBody) => {
 }
 
 // Obtener todos los usuarios
-export const getAllUsers = async () => {
+export const getAllUsers = async (req) => {
+  const { community_id: communityId, rol_name: rolName } = req.user
+  let where = {}
+
+  // Si el rol es Community_Leader o Street_Leader, filtra por comunidad
+  if (rolName === 'Community_Leader' || rolName === 'Street_Leader') {
+    where.community_id = communityId
+  }
+
   const users = await prisma.user.findMany({
+    where,
     select: {
       id: true,
       first_name: true,

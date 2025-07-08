@@ -38,8 +38,7 @@ export const createPost = async (req, res, next) => {
 
 export const getPosts = async (req, res, next) => {
   try {
-    const { communityId } = req.query
-    const posts = await getPostsService(communityId)
+    const posts = await getPostsService(req)
     res.status(200).json({ data: posts })
   } catch (error) {
     next(error)

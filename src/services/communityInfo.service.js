@@ -1,16 +1,27 @@
 import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
+import { validateAndConvertId } from '../utils/validate.js'
 
 // Obtener toda la información de comunidades
-export const getAllInfo = async (communityId) => {
+export const getAllInfo = async (req) => {
   try {
+    const user = req.user || {}
+    const { community_id: communityId, rol_name: rolName } = user
+    const { communityId: queryCommunityId } = req.query //query params fuera
+    console.log('queryCommunityId:', queryCommunityId)
+
     let where = {}
 
-    if (communityId !== null && communityId !== undefined) {
-      const numericCommunityId = Number(communityId)
+    if (queryCommunityId) {
+      const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
     }
-
+    if (
+      !queryCommunityId &&
+      ['Community_Leader', 'Street_Leader'].includes(rolName)
+    ) {
+      where.community_id = communityId
+    }
     const info = await prisma.communityInformation.findMany({
       where,
       select: {
@@ -21,6 +32,7 @@ export const getAllInfo = async (communityId) => {
     })
     return info
   } catch (error) {
+    console.error('Error en getAllInfo:', error)
     throw createError('INTERNAL_SERVER_ERROR')
   }
 }

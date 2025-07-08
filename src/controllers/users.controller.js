@@ -45,7 +45,7 @@ export const createUser = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await getUsersService()
+    const users = await getUsersService(req)
     res.status(200).json({ data: users })
   } catch (error) {
     next(error)
