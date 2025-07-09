@@ -76,6 +76,9 @@ export const getPosts = async (req) => {
     if (queryCommunityId) {
       const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
+      where.status = {
+        in: ['published'],
+      }
     }
 
     if (
@@ -83,9 +86,18 @@ export const getPosts = async (req) => {
       ['Community_Leader', 'Street_Leader'].includes(rolName)
     ) {
       where.community_id = communityId
+      where.status = {
+        in: ['published', 'pending_approval'],
+      }
     }
 
-    // Consulta a la base de datos
+    if (!queryCommunityId && ['Admin'].includes(rolName)) {
+      where.status = {
+        in: ['published', 'pending_approval'],
+      }
+    }
+
+    // Si no hay communityId en query y rol name es 'Admin', devuelve todos los posts
     const posts = await prisma.post.findMany({
       where,
       include: {

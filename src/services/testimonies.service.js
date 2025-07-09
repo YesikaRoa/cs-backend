@@ -23,12 +23,20 @@ export const getTestimonies = async (req) => {
     if (queryCommunityId) {
       const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
+      where.status = {
+        in: ['published'],
+      }
     }
     if (
       !queryCommunityId &&
       ['Community_Leader', 'Street_Leader'].includes(rolName)
     ) {
       where.community_id = communityId
+    }
+    if (!queryCommunityId && ['Admin', 'Community_Leader'].includes(rolName)) {
+      where.status = {
+        in: ['published', 'pending_approval'],
+      }
     }
 
     const testimonies = await prisma.testimony.findMany({
@@ -38,6 +46,7 @@ export const getTestimonies = async (req) => {
         name: true,
         comment: true,
         created_at: true,
+        status: true,
         community: {
           select: {
             id: true,
@@ -131,6 +140,32 @@ export const deleteTestimony = async (id) => {
 
     await prisma.testimony.delete({
       where: { id: numericId },
+    })
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      throw createError('RECORD_NOT_FOUND')
+    }
+
+    throw error
+  }
+}
+//id, newStatus
+export const changeTestimonyStatus = async (req) => {
+  try {
+    const { id } = req.params
+    const { status } = req.body
+
+    if (![1, 2].includes(req.user.rol_id)) {
+      throw createError('UNAUTHORIZED')
+    }
+
+    const numericId = validateAndConvertId(id)
+    await prisma.testimony.update({
+      where: { id: numericId },
+      data: { status },
     })
   } catch (error) {
     if (

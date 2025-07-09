@@ -5,12 +5,14 @@ import {
   createTestimony,
   updateTestimony,
   deleteTestimony,
+  changeTestimonyStatus,
 } from '../controllers/testimonies.controller.js'
 import { verifyToken } from '../middlewares/auth.js'
 import { validate } from '../middlewares/validateInput.js'
 import {
   TestimoniesSchema,
   TestimoniesUpdateSchema,
+  ChangeTestimonyStatusSchema,
 } from '../schemas/testimonies.schema.js'
 import { optionalVerifyToken } from '../middlewares/optionalVerifyToken.js'
 
@@ -35,5 +37,12 @@ router.put(
 
 // Eliminar un testimonio (requiere token)
 router.delete('/:id', verifyToken, deleteTestimony)
+
+router.put(
+  '/:id/status',
+  verifyToken,
+  validate(ChangeTestimonyStatusSchema),
+  changeTestimonyStatus
+)
 
 export default router
