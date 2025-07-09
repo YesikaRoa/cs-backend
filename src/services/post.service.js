@@ -2,8 +2,11 @@ import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
 import CloudinaryAdapter from '../adapters/CloudinaryAdapter.js'
+import redisClient from '../config/redis.js'
+import { clearPostsCache } from '../utils/cache.js'
 
 const cloudinaryPost = new CloudinaryAdapter('posts')
+const redisTimeout = parseInt(process.env.REDIS_TIMEOUT) || 1800 // 30 minutes default
 
 //Crea un nuevo post
 export const createPost = async (postData) => {
@@ -41,17 +44,33 @@ export const createPost = async (postData) => {
         },
       })
     }
+    await clearPostsCache()
   } catch (error) {
     throw error
   }
 }
-
+//obtener todos los posts
 export const getPosts = async (req) => {
   try {
     const user = req.user || {}
     const { community_id: communityId, rol_name: rolName } = user
-    const { communityId: queryCommunityId } = req.query //query params fuera
+    const { communityId: queryCommunityId } = req.query
 
+    // Crear una clave de caché única para esta consulta (basada en req.query y usuario)
+    const cacheKey = `posts:${rolName || 'guest'}:communityId=${
+      queryCommunityId || 'all'
+    }`
+
+    // Intentar obtener datos desde Redis
+    const cachedPosts = await redisClient.get(cacheKey)
+    if (cachedPosts) {
+      // Si existe cache, retornamos el resultado parseado directamente
+      console.log('⚡️ Cache hit')
+      return JSON.parse(cachedPosts)
+    }
+    console.log('🔥 Cache miss - consultando DB')
+
+    // Construir filtro para consulta en DB
     let where = {}
 
     if (queryCommunityId) {
@@ -62,7 +81,6 @@ export const getPosts = async (req) => {
       }
     }
 
-    // Si no hay communityId en query, usa el del token
     if (
       !queryCommunityId &&
       ['Community_Leader', 'Street_Leader'].includes(rolName)
@@ -80,7 +98,6 @@ export const getPosts = async (req) => {
     }
 
     // Si no hay communityId en query y rol name es 'Admin', devuelve todos los posts
-
     const posts = await prisma.post.findMany({
       where,
       include: {
@@ -101,6 +118,11 @@ export const getPosts = async (req) => {
       orderBy: {
         created_at: 'desc',
       },
+    })
+
+    // Guardar en cache
+    await redisClient.set(cacheKey, JSON.stringify(posts), {
+      EX: redisTimeout,
     })
 
     return posts
@@ -188,6 +210,7 @@ export const updatePost = async (id, data, files = []) => {
       where: { id: numericId },
       data,
     })
+    await clearPostsCache()
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -225,6 +248,7 @@ export const deletePost = async (id) => {
     await prisma.post.delete({
       where: { id: numericId },
     })
+    await clearPostsCache()
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
