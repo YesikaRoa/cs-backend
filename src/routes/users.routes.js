@@ -11,10 +11,11 @@ import { validate } from '../middlewares/validateInput.js'
 import { createUserSchema, updateUserSchema } from '../schemas/users.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
 import { uploadUsers } from '../middlewares/upload.js'
+import { optionalVerifyToken } from '../middlewares/optionalVerifyToken.js'
 
 const userRoutes = express.Router()
 
-userRoutes.get('/leaders', getLeaders)
+userRoutes.get('/leaders', optionalVerifyToken, getLeaders)
 
 userRoutes.post(
   '/',

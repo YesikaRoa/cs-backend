@@ -8,11 +8,12 @@ import {
 import { validate } from '../middlewares/validateInput.js'
 import { CommunityInfoUpdateSchema } from '../schemas/communityInfo.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
+import { optionalVerifyToken } from '../middlewares/optionalVerifyToken.js'
 
 const router = express.Router()
 
 // Obtener toda la información de la comunidad
-router.get('/', getCommunityInfo)
+router.get('/', optionalVerifyToken, getCommunityInfo)
 
 // Obtener información por Key
 router.get('/:key', getCommunityInfoByKey)

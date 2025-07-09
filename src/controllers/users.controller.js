@@ -45,7 +45,7 @@ export const createUser = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await getUsersService()
+    const users = await getUsersService(req)
     res.status(200).json({ data: users })
   } catch (error) {
     next(error)
@@ -85,8 +85,7 @@ export const deleteUser = async (req, res, next) => {
 
 export const getLeaders = async (req, res, next) => {
   try {
-    const { communityId } = req.query
-    const leaders = await getLeadersService(communityId)
+    const leaders = await getLeadersService(req)
     res.status(200).json({ data: leaders })
   } catch (error) {
     next(error)

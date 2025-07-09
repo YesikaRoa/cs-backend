@@ -15,6 +15,7 @@ import {
 } from '../schemas/posts.schema.js'
 import { verifyToken } from '../middlewares/auth.js'
 import { uploadPosts } from '../middlewares/upload.js'
+import { optionalVerifyToken } from '../middlewares/optionalVerifyToken.js'
 
 const postRoutes = express.Router()
 
@@ -26,7 +27,8 @@ postRoutes.post(
   createPost
 )
 
-postRoutes.get('/', getPosts)
+//postRoutes.get('/', verifyToken, getPosts)
+postRoutes.get('/', optionalVerifyToken, getPosts)
 
 postRoutes.get('/:id', getPostById)
 

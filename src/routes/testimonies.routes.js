@@ -12,11 +12,12 @@ import {
   TestimoniesSchema,
   TestimoniesUpdateSchema,
 } from '../schemas/testimonies.schema.js'
+import { optionalVerifyToken } from '../middlewares/optionalVerifyToken.js'
 
 const router = express.Router()
 
 // Ruta para obtener testimonios
-router.get('/', getTestimonies)
+router.get('/', optionalVerifyToken, getTestimonies)
 
 // Obtener testimonio por ID de comunidad
 router.get('/:id', getTestimoniesByCommunityId)

@@ -46,15 +46,29 @@ export const createPost = async (postData) => {
   }
 }
 
-//Obtiene todos los posts
-export const getPosts = async (communityId) => {
+export const getPosts = async (req) => {
   try {
+    const user = req.user || {}
+    const { community_id: communityId, rol_name: rolName } = user
+    const { communityId: queryCommunityId } = req.query //query params fuera
+
     let where = {}
 
-    if (communityId !== null && communityId !== undefined) {
-      const numericCommunityId = validateAndConvertId(communityId)
+    if (queryCommunityId) {
+      const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
     }
+
+    // Si no hay communityId en query, usa el del token
+    if (
+      !queryCommunityId &&
+      ['Community_Leader', 'Street_Leader'].includes(rolName)
+    ) {
+      where.community_id = communityId
+    }
+
+    // Si no hay communityId en query y rol name es 'Admin', devuelve todos los posts
+    // return getPosts(null, rolName)
 
     const posts = await prisma.post.findMany({
       where,
@@ -80,7 +94,7 @@ export const getPosts = async (communityId) => {
 
     return posts
   } catch (error) {
-    throw error
+    throw createError('INTERNAL_SERVER_ERROR')
   }
 }
 

@@ -13,34 +13,47 @@ export const createTestimony = async (reqBody) => {
 
 // Obtener todos los testimonios
 
-export const getTestimonies = async (communityId) => {
-  let where = {}
+export const getTestimonies = async (req) => {
+  try {
+    const user = req.user || {}
+    const { community_id: communityId, rol_name: rolName } = user
+    const { communityId: queryCommunityId } = req.query
+    let where = {}
 
-  if (communityId !== null && communityId !== undefined) {
-    const numericCommunityId = validateAndConvertId(communityId)
-    where.community_id = numericCommunityId
-  }
+    if (queryCommunityId) {
+      const numericCommunityId = validateAndConvertId(queryCommunityId)
+      where.community_id = numericCommunityId
+    }
+    if (
+      !queryCommunityId &&
+      ['Community_Leader', 'Street_Leader'].includes(rolName)
+    ) {
+      where.community_id = communityId
+    }
 
-  const testimonies = await prisma.testimony.findMany({
-    where,
-    select: {
-      id: true,
-      name: true,
-      comment: true,
-      created_at: true,
-      community: {
-        select: {
-          id: true,
-          name: true,
+    const testimonies = await prisma.testimony.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        comment: true,
+        created_at: true,
+        community: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  })
+      orderBy: {
+        created_at: 'desc',
+      },
+    })
 
-  return testimonies
+    return testimonies
+  } catch (error) {
+    throw error
+  }
 }
 
 // Obtener testimonios por ID de comunidad
