@@ -4,6 +4,7 @@ import {
   updateTestimony as updateTestimonyService,
   deleteTestimony as deleteTestimonyService,
   getTestimonies as getTestimoniesService,
+  changeTestimonyStatus as changeTestimonyStatusService,
 } from '../services/testimonies.service.js'
 
 // Obtener todos los testimonios
@@ -68,6 +69,17 @@ export const deleteTestimony = async (req, res, next) => {
     await deleteTestimonyService(req.params.id)
     res.status(200).json({
       message: 'Testimonio eliminado con éxito',
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const changeTestimonyStatus = async (req, res, next) => {
+  try {
+    await changeTestimonyStatusService(req)
+    res.status(200).json({
+      message: 'Estado del testimonio actualizado correctamente',
     })
   } catch (error) {
     next(error)

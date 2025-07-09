@@ -57,6 +57,9 @@ export const getPosts = async (req) => {
     if (queryCommunityId) {
       const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
+      where.status = {
+        in: ['published'],
+      }
     }
 
     // Si no hay communityId en query, usa el del token
@@ -65,10 +68,18 @@ export const getPosts = async (req) => {
       ['Community_Leader', 'Street_Leader'].includes(rolName)
     ) {
       where.community_id = communityId
+      where.status = {
+        in: ['published', 'pending_approval'],
+      }
+    }
+
+    if (!queryCommunityId && ['Admin'].includes(rolName)) {
+      where.status = {
+        in: ['published', 'pending_approval'],
+      }
     }
 
     // Si no hay communityId en query y rol name es 'Admin', devuelve todos los posts
-    // return getPosts(null, rolName)
 
     const posts = await prisma.post.findMany({
       where,
