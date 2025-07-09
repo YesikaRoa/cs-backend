@@ -6,6 +6,7 @@ import redisClient from '../config/redis.js'
 import { clearPostsCache } from '../utils/cache.js'
 
 const cloudinaryPost = new CloudinaryAdapter('posts')
+const redisTimeout = parseInt(process.env.REDIS_TIMEOUT) || 1800 // 30 minutes default
 
 //Crea un nuevo post
 export const createPost = async (postData) => {
@@ -107,9 +108,9 @@ export const getPosts = async (req) => {
       },
     })
 
-    // Guardar en cache por 30 minutos (1800 segundos)
+    // Guardar en cache
     await redisClient.set(cacheKey, JSON.stringify(posts), {
-      EX: 1800,
+      EX: redisTimeout,
     })
 
     return posts
