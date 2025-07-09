@@ -10,3 +10,9 @@ export const TestimoniesSchema = z.object({
 })
 
 export const TestimoniesUpdateSchema = TestimoniesSchema.partial()
+
+export const ChangeTestimonyStatusSchema = z.object({
+  status: z.enum(['published', 'draft'], {
+    errorMap: () => ({ message: "El status debe ser 'published' o 'draft'" }),
+  }),
+})

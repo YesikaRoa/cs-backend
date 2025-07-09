@@ -96,6 +96,7 @@ model Testimony {
   comment      String    @db.VarChar(150)
   created_at   DateTime  @default(now())
   community_id Int
+  status       TestimonyStatus   @default(pending_approval)
   community    Community @relation(fields: [community_id], references: [id], onDelete: Cascade)
 }
 
@@ -122,6 +123,12 @@ enum RoleType {
 }
 
 enum PostStatus {
+  draft
+  published
+  pending_approval
+}
+
+enum TestimonyStatus {
   draft
   published
   pending_approval
