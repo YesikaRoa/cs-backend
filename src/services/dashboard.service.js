@@ -27,7 +27,7 @@ export const getDashboardDataService = async (req) => {
 
   const roleMap = {
     Admin: 'Administrador',
-    Community_Leader: 'Jefe de comunidad',
+    Community_Leader: 'Líder de comunidad',
     Street_Leader: 'Líder de calle',
   }
 

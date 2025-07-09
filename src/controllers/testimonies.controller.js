@@ -9,8 +9,7 @@ import {
 // Obtener todos los testimonios
 export const getTestimonies = async (req, res, next) => {
   try {
-    const { communityId } = req.query
-    const testimonies = await getTestimoniesService(communityId)
+    const testimonies = await getTestimoniesService(req)
     res.status(200).json({ data: testimonies })
   } catch (error) {
     next(error)

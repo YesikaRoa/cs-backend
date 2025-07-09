@@ -7,9 +7,7 @@ export const getAllInfo = async (req) => {
   try {
     const user = req.user || {}
     const { community_id: communityId, rol_name: rolName } = user
-    const { communityId: queryCommunityId } = req.query //query params fuera
-    console.log('queryCommunityId:', queryCommunityId)
-
+    const { communityId: queryCommunityId } = req.query
     let where = {}
 
     if (queryCommunityId) {
@@ -32,8 +30,7 @@ export const getAllInfo = async (req) => {
     })
     return info
   } catch (error) {
-    console.error('Error en getAllInfo:', error)
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 

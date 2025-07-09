@@ -220,8 +220,11 @@ export const deleteUser = async (id) => {
 }
 
 // Obtener líderes por comunidad
-export const getLeadersByCommunity = async (communityId) => {
+export const getLeadersByCommunity = async (req) => {
   try {
+    const user = req.user || {}
+    const { community_id: communityId, rol_name: rolName } = user
+    const { communityId: queryCommunityId } = req.query
     let where = {
       role: {
         name: {
@@ -230,9 +233,15 @@ export const getLeadersByCommunity = async (communityId) => {
       },
     }
 
-    if (communityId !== null && communityId !== undefined) {
-      const numericCommunityId = validateAndConvertId(communityId)
+    if (queryCommunityId) {
+      const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
+    }
+    if (
+      !queryCommunityId &&
+      ['Community_Leader', 'Street_Leader'].includes(rolName)
+    ) {
+      where.community_id = communityId
     }
 
     const leaders = await prisma.user.findMany({
