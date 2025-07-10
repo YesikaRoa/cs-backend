@@ -11,6 +11,7 @@ export const updateProfileSchema = z
       .min(1, { message: 'El apellido es requerido' })
       .max(50, { message: 'El apellido no puede exceder 50 caracteres' }),
     email: z.string().email({ message: 'El correo debe ser válido' }),
+    dni: z.string().max(20, 'La cédula no puede superar los 20 caracteres'),
     phone: z
       .string()
       .max(20, { message: 'El teléfono no puede exceder 20 caracteres' })

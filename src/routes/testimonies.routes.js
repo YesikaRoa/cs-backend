@@ -25,7 +25,7 @@ router.get('/', optionalVerifyToken, getTestimonies)
 router.get('/:id', getTestimoniesByCommunityId)
 
 // Crear un nuevo testimonio (requiere token y validación)
-router.post('/', verifyToken, validate(TestimoniesSchema), createTestimony)
+router.post('/', validate(TestimoniesSchema), createTestimony)
 
 // Actualizar un testimonio existente (requiere token y validación)
 router.put(
