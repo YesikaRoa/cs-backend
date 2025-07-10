@@ -16,6 +16,7 @@ export const getProfile = async (userId) => {
         email: true,
         phone: true,
         url_image: true,
+        dni: true,
         role: {
           select: {
             id: true,
