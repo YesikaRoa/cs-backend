@@ -56,20 +56,6 @@ export const getPosts = async (req) => {
     const { community_id: communityId, rol_name: rolName } = user
     const { communityId: queryCommunityId } = req.query
 
-    // Crear una clave de caché única para esta consulta (basada en req.query y usuario)
-    const cacheKey = `posts:${rolName || 'guest'}:communityId=${
-      queryCommunityId || 'all'
-    }`
-
-    // Intentar obtener datos desde Redis
-    const cachedPosts = await redisClient.get(cacheKey)
-    if (cachedPosts) {
-      // Si existe cache, retornamos el resultado parseado directamente
-      console.log('⚡️ Cache hit')
-      return JSON.parse(cachedPosts)
-    }
-    console.log('🔥 Cache miss - consultando DB')
-
     // Construir filtro para consulta en DB
     let where = {}
 
@@ -79,6 +65,20 @@ export const getPosts = async (req) => {
       where.status = {
         in: ['published'],
       }
+
+      // Crear una clave de caché única para esta consulta (basada en req.query y usuario)
+      const cacheKey = `posts:${rolName || 'guest'}:communityId=${
+        queryCommunityId || 'all'
+      }`
+
+      // Intentar obtener datos desde Redis
+      const cachedPosts = await redisClient.get(cacheKey)
+      if (cachedPosts) {
+        // Si existe cache, retornamos el resultado parseado directamente
+        console.log('⚡️ Cache hit')
+        return JSON.parse(cachedPosts)
+      }
+      console.log('🔥 Cache miss - consultando DB')
     }
 
     if (
@@ -120,10 +120,12 @@ export const getPosts = async (req) => {
       },
     })
 
-    // Guardar en cache
-    await redisClient.set(cacheKey, JSON.stringify(posts), {
-      EX: redisTimeout,
-    })
+    if (queryCommunityId) {
+      // Guardar en cache
+      await redisClient.set(cacheKey, JSON.stringify(posts), {
+        EX: redisTimeout,
+      })
+    }
 
     return posts
   } catch (error) {
