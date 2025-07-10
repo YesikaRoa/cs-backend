@@ -59,17 +59,17 @@ export const getPosts = async (req) => {
     // Construir filtro para consulta en DB
     let where = {}
 
+    // Crear una clave de caché única para esta consulta (basada en req.query y usuario)
+    const cacheKey = `posts:${rolName || 'guest'}:communityId=${
+      queryCommunityId || 'all'
+    }`
+
     if (queryCommunityId) {
       const numericCommunityId = validateAndConvertId(queryCommunityId)
       where.community_id = numericCommunityId
       where.status = {
         in: ['published'],
       }
-
-      // Crear una clave de caché única para esta consulta (basada en req.query y usuario)
-      const cacheKey = `posts:${rolName || 'guest'}:communityId=${
-        queryCommunityId || 'all'
-      }`
 
       // Intentar obtener datos desde Redis
       const cachedPosts = await redisClient.get(cacheKey)
@@ -129,7 +129,7 @@ export const getPosts = async (req) => {
 
     return posts
   } catch (error) {
-    throw createError('INTERNAL_SERVER_ERROR')
+    throw error
   }
 }
 
