@@ -270,6 +270,7 @@ export const changePostStatus = async (id, newStatus) => {
       where: { id: numericId },
       data: { status: newStatus },
     })
+    await clearPostsCache()
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
