@@ -26,10 +26,11 @@ export const createPost = async (req, res, next) => {
       files,
     }
 
-    await createPostService(postDataForService)
+    const newPost = await createPostService(postDataForService)
 
     res.status(201).json({
       message: 'Publicación creada con éxito',
+      data: newPost,
     })
   } catch (error) {
     next(error)
@@ -57,7 +58,7 @@ export const getPostById = async (req, res, next) => {
 export const updatePost = async (req, res, next) => {
   try {
     const { title, content, category_id } = req.body
-
+    const id = req.params.id
     const files = req.files || []
 
     const data = {
@@ -66,10 +67,11 @@ export const updatePost = async (req, res, next) => {
       category_id,
     }
 
-    await updatePostService(req.params.id, data, files)
+    const resUpdate = await updatePostService(id, data, files)
 
     res.status(200).json({
       message: 'Publicación actualizada con éxito',
+      resUpdate,
     })
   } catch (error) {
     next(error)

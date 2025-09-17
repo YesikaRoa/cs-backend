@@ -9,7 +9,7 @@ export const TestimoniesSchema = z.object({
     .positive({ message: 'La comunidad es requerida' }),
 })
 
-export const TestimoniesUpdateSchema = TestimoniesSchema.partial()
+export const TestimoniesUpdateSchema = TestimoniesSchema.partial().strict()
 
 export const ChangeTestimonyStatusSchema = z.object({
   status: z.enum(['published', 'draft'], {

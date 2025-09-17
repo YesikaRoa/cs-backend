@@ -8,7 +8,7 @@ const redisClient = createClient({
   password: process.env.REDIS_PASS,
   socket: {
     host: process.env.REDIS_HOST,
-    port: Number(process.env.REDIS_PORT), // Asegúrate que es número
+    port: Number(process.env.REDIS_PORT),
   },
 })
 
@@ -16,7 +16,14 @@ redisClient.on('error', (err) => {
   console.error('❌ Redis Client Error', err)
 })
 
-await redisClient.connect()
-console.log('✅ Redis conectado correctamente')
+// Función asíncrona para manejar la conexión
+async function connectRedis() {
+  try {
+    await redisClient.connect()
+    console.log('✅ Redis conectado correctamente')
+  } catch (error) {
+    console.error('❌ Error al conectar a Redis:', error)
+  }
+}
 
-export default redisClient
+export { redisClient, connectRedis }

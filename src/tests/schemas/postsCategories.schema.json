@@ -1,0 +1,23 @@
+{
+  "postsCategories": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "integer"
+      },
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer" },
+            "name": { "type": "string" }
+          },
+          "required": ["id", "name"]
+        },
+        "minItems": 1
+      }
+    },
+    "required": ["status", "data"]
+  }
+}

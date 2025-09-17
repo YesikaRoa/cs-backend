@@ -1,43 +1,20 @@
-import express from 'express'
-import dotenv from 'dotenv'
-dotenv.config()
+// index.js
 
-import './config/env.js'
-import cors from 'cors'
-import authRoutes from './routes/auth.routes.js'
-import postRoutes from './routes/posts.routes.js'
-import testimoniesRoutes from './routes/testimonies.routes.js'
-import communityInfoRoutes from './routes/communityInfo.routes.js'
-import userRoutes from './routes/users.routes.js'
-import communityRoute from './routes/community.routes.js'
-import postCategoryRoutes from './routes/postsCategories.routes.js'
-import dashboardRouter from './routes/dashboard.routes.js'
-import profileRoutes from './routes/profile.routes.js'
-import communityDocumentsRoutes from './routes/communityDocuments.route.js'
-
-import { errorHandler } from './middlewares/errorHandler.js'
-import { setupSwagger } from './docs/swagger.js'
-
-const app = express()
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-
-app.use(cors())
-app.use('/api/auth', authRoutes)
-app.use('/api/posts', postRoutes)
-app.use('/api/testimonies', testimoniesRoutes)
-app.use('/api/community_information', communityInfoRoutes)
-app.use('/api/users', userRoutes)
-app.use('/api/communities', communityRoute)
-app.use('/api/posts_categories', postCategoryRoutes)
-app.use('/api/dashboard', dashboardRouter)
-app.use('/api/profile', profileRoutes)
-app.use('/api/documents', communityDocumentsRoutes)
-
-app.use(errorHandler)
-
-// Swagger docs
-setupSwagger(app)
+import app from './app.js'
+import { connectRedis } from './config/redis.js'
 
 const PORT = process.env.PORT || 3002
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+
+// Llama a la función de conexión y espera a que termine.
+// Solo inicia el servidor si la conexión fue exitosa.
+async function startServer() {
+  try {
+    await connectRedis()
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+  } catch (err) {
+    console.error('Failed to start server:', err)
+    process.exit(1) // Sal del proceso si no se puede conectar a Redis
+  }
+}
+
+startServer()

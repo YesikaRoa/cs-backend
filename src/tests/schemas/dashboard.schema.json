@@ -1,0 +1,67 @@
+{
+  "getDashboard": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "integer"
+      },
+      "data": {
+        "type": "object",
+        "properties": {
+          "last_logins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer" },
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" },
+                "community": { "type": "string" },
+                "rol": { "type": "string" },
+                "last_login": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "first_name",
+                "last_name",
+                "community",
+                "rol",
+                "last_login"
+              ]
+            }
+          },
+          "posts_month": {
+            "type": "object",
+            "patternProperties": {
+              ".*": { "type": "integer" }
+            },
+            "additionalProperties": false
+          },
+          "posts_year": {
+            "type": "object",
+            "patternProperties": {
+              ".*": { "type": "integer" }
+            },
+            "additionalProperties": false
+          },
+          "posts_per_month": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "minItems": 12,
+            "maxItems": 12
+          }
+        },
+        "required": [
+          "last_logins",
+          "posts_month",
+          "posts_year",
+          "posts_per_month"
+        ]
+      }
+    },
+    "required": ["status", "data"]
+  }
+}

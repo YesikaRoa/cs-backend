@@ -1,0 +1,118 @@
+{
+  "getAllPosts": {
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer" },
+            "title": { "type": "string" },
+            "content": { "type": "string" },
+            "status": {
+              "type": "string",
+              "enum": ["published", "draft", "archived"]
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "user_id": { "type": "integer" },
+            "community_id": { "type": "integer" },
+            "category_id": { "type": "integer" },
+            "user": {
+              "type": "object",
+              "properties": {
+                "first_name": { "type": "string" },
+                "last_name": { "type": "string" }
+              },
+              "required": ["first_name", "last_name"],
+              "additionalProperties": false
+            },
+            "category": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" }
+              },
+              "required": ["name"],
+              "additionalProperties": false
+            },
+            "community": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" }
+              },
+              "required": ["name"],
+              "additionalProperties": false
+            },
+            "images": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "content",
+            "status",
+            "created_at",
+            "updated_at",
+            "user_id",
+            "community_id",
+            "category_id",
+            "user",
+            "category",
+            "community",
+            "images"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["data"],
+    "additionalProperties": false
+  },
+  "createPost": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1
+      },
+      "content": {
+        "type": "string",
+        "minLength": 1
+      },
+      "status": {
+        "type": "string",
+        "enum": ["pending_approval", "published", "draft"]
+      },
+      "user_id": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "community_id": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "category_id": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "required": [
+      "title",
+      "content",
+      "status",
+      "user_id",
+      "community_id",
+      "category_id"
+    ],
+    "additionalProperties": false
+  }
+}

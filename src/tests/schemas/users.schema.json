@@ -1,0 +1,184 @@
+{
+  "getAllUsers": {
+    "type": "object",
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "rol_id",
+            "community_id",
+            "is_active",
+            "role",
+            "community"
+          ],
+          "properties": {
+            "id": { "type": "integer" },
+            "first_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "phone": { "type": ["string", "null"] },
+            "rol_id": { "type": "integer" },
+            "community_id": { "type": "integer" },
+            "url_image": { "type": ["string", "null"] },
+            "dni": { "type": ["string", "null"] },
+            "is_active": { "type": "boolean" },
+            "role": {
+              "type": "object",
+              "required": ["id", "name"],
+              "properties": {
+                "id": { "type": "integer" },
+                "name": { "type": "string" }
+              }
+            },
+            "community": {
+              "type": "object",
+              "required": ["id", "name"],
+              "properties": {
+                "id": { "type": "integer" },
+                "name": { "type": "string" }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "getUserById": {
+    "type": "object",
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "type": "object",
+        "required": [
+          "id",
+          "first_name",
+          "last_name",
+          "email",
+          "rol_id",
+          "community_id",
+          "is_active",
+          "role",
+          "community"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "phone": { "type": ["string", "null"] },
+          "rol_id": { "type": "integer" },
+          "community_id": { "type": "integer" },
+          "url_image": { "type": ["string", "null"] },
+          "dni": { "type": ["string", "null"] },
+          "is_active": { "type": "boolean" },
+          "role": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" }
+            }
+          },
+          "community": {
+            "type": "object",
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  },
+  "getCommunityLeaders": {
+    "type": "object",
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "first_name",
+            "last_name",
+            "url_image",
+            "role",
+            "community"
+          ],
+          "properties": {
+            "first_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "url_image": { "type": ["string", "null"] },
+            "role": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" }
+              },
+              "additionalProperties": false
+            },
+            "community": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "createUserPayload": {
+    "type": "object",
+    "properties": {
+      "first_name": { "type": "string", "minLength": 1, "maxLength": 50 },
+      "last_name": { "type": "string", "minLength": 1, "maxLength": 50 },
+      "dni": { "type": "string", "maxLength": 20 },
+      "email": { "type": "string", "format": "email" },
+      "password": { "type": "string", "minLength": 6 },
+      "phone": { "type": "string", "maxLength": 20 },
+      "rol_id": { "type": "integer", "minimum": 1 },
+      "community_id": { "type": "integer", "minimum": 1 }
+    },
+    "required": [
+      "first_name",
+      "last_name",
+      "dni",
+      "email",
+      "password",
+      "rol_id",
+      "community_id"
+    ],
+    "additionalProperties": false
+  },
+  "updateUser": {
+    "type": "object",
+    "properties": {
+      "first_name": { "type": "string", "minLength": 1, "maxLength": 50 },
+      "last_name": { "type": "string", "minLength": 1, "maxLength": 50 },
+      "dni": { "type": "string", "maxLength": 20 },
+      "email": { "type": "string", "format": "email" },
+      "password": { "type": "string", "minLength": 6 },
+      "phone": { "type": "string", "maxLength": 20 },
+      "rol_id": { "type": "integer", "minimum": 1 },
+      "community_id": { "type": "integer", "minimum": 1 }
+    },
+    "additionalProperties": false
+  }
+}

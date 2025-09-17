@@ -1,0 +1,42 @@
+{
+  "getAllCommunity": {
+    "title": "CommunityInformationResponse",
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer" },
+            "title": { "type": "string" },
+            "value": { "type": "string" }
+          },
+          "required": ["id", "title", "value"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["data"],
+    "additionalProperties": false
+  },
+  "getAllCommunities": {
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer" },
+            "name": { "type": "string" }
+          },
+          "required": ["id", "name"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["data"],
+    "additionalProperties": false
+  }
+}

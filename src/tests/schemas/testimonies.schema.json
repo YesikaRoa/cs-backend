@@ -1,0 +1,90 @@
+{
+  "allTestimonies": {
+    "type": "object",
+    "properties": {
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer", "minimum": 1 },
+            "name": { "type": "string", "maxLength": 20 },
+            "comment": { "type": "string", "maxLength": 150 },
+            "created_at": { "type": "string", "format": "date-time" },
+            "status": {
+              "type": "string",
+              "enum": ["pending_approval", "draft", "approved"]
+            },
+            "community": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer", "minimum": 1 },
+                "name": { "type": "string" }
+              },
+              "required": ["id", "name"],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "comment",
+            "created_at",
+            "status",
+            "community"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["data"],
+    "additionalProperties": false
+  },
+  "testimoniesByCommunity": {
+    "type": "object",
+    "properties": {
+      "status": { "type": "integer" },
+      "data": {
+        "type": "array",
+        "minItems": 0,
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer", "minimum": 1 },
+            "name": { "type": "string", "maxLength": 20 },
+            "comment": { "type": "string", "maxLength": 150 },
+            "created_at": { "type": "string", "format": "date-time" },
+            "community": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer", "minimum": 1 },
+                "name": { "type": "string" }
+              },
+              "required": ["id", "name"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["id", "name", "comment", "created_at", "community"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": ["data"],
+    "additionalProperties": false
+  },
+  "createTestimony": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "maxLength": 20 },
+      "comment": { "type": "string", "maxLength": 150 },
+      "status": {
+        "type": "string",
+        "enum": ["pending_approval", "draft", "approved"]
+      },
+      "community_id": { "type": "integer", "minimum": 1 }
+    },
+    "required": ["name", "comment", "community_id"],
+    "additionalProperties": false
+  }
+}
