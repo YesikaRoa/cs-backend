@@ -1,0 +1,41 @@
+{
+  "createRegister": {
+    "type": "object",
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "password": {
+        "type": "string",
+        "minLength": 6
+      },
+      "first_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "last_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "phone": {
+        "type": "string"
+      },
+      "rol_id": {
+        "type": "integer"
+      },
+      "community_id": {
+        "type": "integer"
+      }
+    },
+    "required": [
+      "email",
+      "password",
+      "first_name",
+      "last_name",
+      "rol_id",
+      "community_id"
+    ],
+    "additionalProperties": false
+  }
+}

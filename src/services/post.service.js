@@ -2,7 +2,7 @@ import { prisma, Prisma } from '../config/db.js'
 import { createError } from '../utils/errors.js'
 import { validateAndConvertId } from '../utils/validate.js'
 import CloudinaryAdapter from '../adapters/CloudinaryAdapter.js'
-import redisClient from '../config/redis.js'
+import { redisClient } from '../config/redis.js'
 import { clearPostsCache } from '../utils/cache.js'
 
 const cloudinaryPost = new CloudinaryAdapter('posts')
@@ -45,6 +45,7 @@ export const createPost = async (postData) => {
       })
     }
     await clearPostsCache()
+    return post
   } catch (error) {
     throw error
   }
@@ -208,11 +209,12 @@ export const updatePost = async (id, data, files = []) => {
       }
     }
 
-    await prisma.post.update({
+    const res = await prisma.post.update({
       where: { id: numericId },
       data,
     })
     await clearPostsCache()
+    return res
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

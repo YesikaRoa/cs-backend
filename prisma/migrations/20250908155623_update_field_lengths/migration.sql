@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "CommunityInformation" ALTER COLUMN "title" SET DATA TYPE VARCHAR(50);
+
+-- AlterTable
+ALTER TABLE "Post" ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP;

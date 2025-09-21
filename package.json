@@ -12,8 +12,11 @@
     "start": "cross-env NODE_ENV=production node src/index.js",
     "migrate:dev": "cross-env NODE_ENV=development prisma migrate dev --skip-seed && npm run seed",
     "migrate:prod": "cross-env NODE_ENV=production prisma migrate deploy && npx prisma generate && npm run seed",
+    "prisma:migrate:test": "dotenv -e .env.test -- npx prisma migrate deploy",
     "generate": "prisma generate",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run prisma:migrate:test && jest --runInBand",
+    "test:watch": "npm run prisma:migrate:test && jest --watch --runInBand",
+    "test:cov": "npm run prisma:migrate:test && jest --coverage --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -39,7 +42,17 @@
     "zod": "^3.25.46"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@jest/globals": "^30.1.2",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "babel-jest": "^30.1.2",
+    "babel-plugin-transform-import-meta": "^2.3.3",
+    "dotenv-cli": "^10.0.0",
+    "jest": "^30.1.3",
     "nodemon": "^3.1.9",
-    "prisma": "^6.6.0"
+    "prisma": "^6.6.0",
+    "supertest": "^7.1.4"
   }
 }

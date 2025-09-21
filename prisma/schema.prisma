@@ -31,7 +31,7 @@ model User {
 
 model CommunityInformation {
   id           Int       @id @default(autoincrement())
-  title        String    @db.VarChar(20)
+  title        String    @db.VarChar(50)
   value        String
   community_id Int?
   community    Community? @relation(fields: [community_id], references: [id])
@@ -72,7 +72,7 @@ model Post {
   content      String
   status       PostStatus   @default(pending_approval)
   created_at   DateTime     @default(now())
-  updated_at   DateTime     @updatedAt
+  updated_at   DateTime     @default(now())
   user_id      Int
   community_id Int
   category_id  Int

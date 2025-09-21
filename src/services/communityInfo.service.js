@@ -37,13 +37,10 @@ export const getAllInfo = async (req) => {
 // Obtener información  por ID
 export const getInfoByKey = async (key) => {
   try {
+    const numericKey = validateAndConvertId(key)
     const info = await prisma.communityInformation.findUnique({
-      where: { title: key },
-      select: {
-        id: true,
-        title: true,
-        value: true,
-      },
+      where: { id: numericKey },
+      select: { id: true, title: true, value: true },
     })
 
     if (!info) {
@@ -66,8 +63,9 @@ export const getInfoByKey = async (key) => {
 // Actualizar información de comunidad
 export const updateInfo = async (key, data) => {
   try {
+    const numericKey = validateAndConvertId(key)
     const updatedInfo = await prisma.communityInformation.update({
-      where: { title: key },
+      where: { id: numericKey },
       data,
     })
 
