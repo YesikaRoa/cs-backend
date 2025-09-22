@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename)
 // Obtener entorno
 const currentEnv = process.env.NODE_ENV || 'local'
 
+// Detectar si estamos en CI (GitHub Actions define process.env.CI = "true")
+const isCI = !!process.env.CI
+
 // Determinar nombre del archivo .env a cargar
 const envFile = currentEnv === 'local' ? '.env' : `.env.${currentEnv}`
 
@@ -25,7 +28,11 @@ console.log('[postinstall] Environment:', env)
 console.log('[postinstall] Loaded env file:', envPath)
 
 try {
-  if (env === 'local') {
+  if (isCI || env === 'test') {
+    console.log(
+      '[postinstall] Skipping migration: CI or test environment detected.'
+    )
+  } else if (env === 'local') {
     console.log('[postinstall] Skipping migration: local environment')
   } else if (env === 'development') {
     console.log('[postinstall] Running migrate:dev...')
