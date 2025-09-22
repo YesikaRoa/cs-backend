@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename)
 // Obtener entorno
 const currentEnv = process.env.NODE_ENV || 'local'
 
-// Detectar si estamos en CI (GitHub Actions define process.env.CI = "true")
+// Detectar si estamos en CI(GitHub Actions define process.env.CI = "true")
 const isCI = !!process.env.CI
 
 // Determinar nombre del archivo .env a cargar
