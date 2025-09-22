@@ -1,0 +1,56 @@
+name: CI - Backend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup .env.test
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.test
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.test
+          echo "PORT=${{ secrets.PORT }}" >> .env.test
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env.test
+          echo "CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}" >> .env.test
+          echo "CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}" >> .env.test
+          echo "CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}" >> .env.test
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env.test
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env.test
+          echo "REDIS_USER=${{ secrets.REDIS_USER }}" >> .env.test
+          echo "REDIS_PASS=${{ secrets.REDIS_PASS }}" >> .env.test
+          echo "REDIS_TIMEOUT=${{ secrets.REDIS_TIMEOUT }}" >> .env.test
+
+      - name: Run tests
+        run: npm test
