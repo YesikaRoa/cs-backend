@@ -23,8 +23,14 @@ import { setupSwagger } from './docs/swagger.js'
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cors())
 
+app.use(
+  cors({
+    origin: 'https://libertadores-cs.netlify.app', // tu frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true, // si usas cookies o autenticación con credenciales
+  })
+)
 // Rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
