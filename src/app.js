@@ -24,11 +24,24 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+const allowedOrigins = [
+  'https://libertadores-cs.netlify.app', // tu frontend de administración
+  'https://cs-websitee.netlify.app', // tu sitio web público
+  'http://localhost:3004', //para desarrollo local
+]
 app.use(
   cors({
-    origin: 'https://libertadores-cs.netlify.app', // tu frontend
+    origin: (origin, callback) => {
+      // Permite solicitudes sin origen (por ejemplo, Postman o servidores internos)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        console.warn('❌ CORS bloqueado para origen:', origin)
+        callback(new Error('No autorizado por CORS'))
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true, // si usas cookies o autenticación con credenciales
+    credentials: true,
   })
 )
 // Rutas
