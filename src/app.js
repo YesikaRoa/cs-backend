@@ -88,3 +88,4 @@ app.use(errorHandler)
 setupSwagger(app)
 
 export default app
+
