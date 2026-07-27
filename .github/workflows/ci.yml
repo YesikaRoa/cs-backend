@@ -43,21 +43,3 @@ jobs:
         env:
           NODE_ENV: test
         run: npm test
-  deploy:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/cs-backend
-            git pull origin main
-            npm install --omit=dev
-            pm2 restart cs-backend || pm2 start npm --name cs-backend -- run start
