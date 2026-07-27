@@ -24,26 +24,52 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-const allowedOrigins = [
-  'https://libertadores-cs.netlify.app', // tu frontend de administración
-  'https://cs-websitee.netlify.app', // tu sitio web público
-  'http://localhost:3004', //para desarrollo local
+const defaultOrigins = [
+  'https://libertadores-cs.netlify.app',
+  'https://cs-websitee.netlify.app',
+  'http://localhost:3004',
+  'http://localhost:5173',
+  'http://localhost:3000',
 ]
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Permite solicitudes sin origen (por ejemplo, Postman o servidores internos)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true)
-      } else {
-        console.warn('❌ CORS bloqueado para origen:', origin)
-        callback(new Error('No autorizado por CORS'))
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  })
-)
+
+const envOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+  : []
+
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])]
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Permite solicitudes sin origen (Postman, cURL, servidor-a-servidor)
+    if (!origin) return callback(null, true)
+
+    const normalizedOrigin = origin.replace(/\/$/, '')
+    const isAllowed = allowedOrigins.some(
+      (allowed) => allowed.replace(/\/$/, '') === normalizedOrigin
+    )
+
+    if (isAllowed) {
+      callback(null, true)
+    } else {
+      console.warn('❌ CORS bloqueado para origen:', origin)
+      callback(null, false)
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers',
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
 // Rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/posts', postRoutes)
